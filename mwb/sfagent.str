@@ -1,0 +1,99 @@
+functor StringFAgent(structure Act : SFACTION;
+		     structure SL : SORTEDLIST) : SFAGENT =
+struct
+	
+   structure Act = Act
+   structure N = Act.N
+
+   datatype agent = Nil
+     		  | Prefix of Act.action * agent
+		  | Conc of N.name list * agent
+		  | Match of ((N.name * N.name) list * (N.name * N.name) list) * agent
+                  | Sum of agent list
+                  | Parallel of agent list
+		  | Scope of N.name * agent
+                  | AgentID of string
+		  | Applic of agent * N.name list
+
+   exception WrongArgs of string
+
+   fun free_names(Nil) = []
+     | free_names (Prefix(a,P)) =
+       SL.merge N.le true (Act.free_names(a),free_names P)
+     | free_names (Conc(nl,P)) =
+       SL.merge N.le true (SL.sort N.le true nl,free_names P)
+     | free_names (Match((e,d),P)) =
+       SL.merge N.le true (SL.sort N.le true
+			   (Lib.fold (fn ((a,b),l)=> a::b::l) e
+			    (Lib.fold (fn ((a,b),l)=> a::b::l) d [])),
+			   free_names P)
+     | free_names (Sum(pp)) =
+       Lib.fold (fn (p,pn)=> SL.merge N.le true ((free_names p),pn)) pp []
+     | free_names (Parallel(pp)) =
+       Lib.fold (fn (p,pn)=> SL.merge N.le true ((free_names p),pn)) pp []
+     | free_names (Scope(n,p)) =
+       SL.remove (fn x=>x) N.le (n,free_names p)
+     | free_names (AgentID(x)) = []
+     | free_names (Applic(P,nl)) =
+       SL.merge N.le true (SL.sort N.le true nl,free_names P)
+
+
+
+   (* this should print polyadicity prettier *)
+   fun mkstr(Nil) = "0"
+     | mkstr(Prefix(a,P)) =
+       if not (!Flags.printactions) then
+	   (Act.mkstr a) ^ "." ^ (mkstr P)
+       else
+	   (Act.mkstr a)^
+	   (case P of
+		Conc(n,Q) =>
+		    "<"^(Lib.mapconcat (fn n=> N.mkstr(n)) n ",")
+		    ^">."^(mkstr Q)
+		  | _ =>
+			"."^(mkstr P))
+     | mkstr(Conc(n,P)) = "["^(Lib.mapconcat N.mkstr n ",")^"]"^(mkstr P)
+     | mkstr(Match(t,P)) = (Tmkstr t) ^ (mkstr P)
+     | mkstr(Sum(P)) = "(" ^ (Lib.mapconcat mkstr P " + ") ^ ")"
+     | mkstr(Parallel(P)) = "(" ^ (Lib.mapconcat mkstr P " | ") ^ ")"
+     | mkstr(Scope(n,P)) = "("^(N.mkstr n)^")"^(mkstr P)
+     | mkstr(AgentID(I)) = I
+     | mkstr(Applic(P as AgentID(I),args)) =
+       (mkstr P) ^ "<" ^ (Lib.mapconcat N.mkstr args ",") ^ ">"
+
+   and Tmkstr (eq,neq) =
+       "["
+       ^(Lib.mapconcat (fn (a,b)=>(N.mkstr a)^"="^(N.mkstr b)) eq ",")
+       ^(if null eq then "" else if null neq then "" else ",")
+       ^(Lib.mapconcat (fn (a,b)=>(N.mkstr a)^"#"^(N.mkstr b)) neq ",")
+       ^"]"
+
+   fun d_le ((a,c),(b,d)) =		(* a<=b & (a<b | c<=d) *)
+       N.le(a,b) andalso (not(N.le(b,a)) orelse N.le(c,d))
+   and d_eq ((a,c),(b,d)) = N.eq(a,b) andalso N.eq(c,d)
+
+   and Teq ((e1,n1),(e2,n2)) =
+       Lib.eq d_eq ((SL.sort d_le true e1),(SL.sort d_le true e2))
+       andalso
+       Lib.eq d_eq ((SL.sort d_le true n1),(SL.sort d_le true n2))
+
+   fun eq (Nil,Nil) = true
+     | eq (Prefix(a,P),Prefix(b,Q)) =
+       Act.eq(a,b) andalso eq(P,Q)
+     | eq (Conc(a,P),Conc(b,Q)) =
+       Lib.eq N.eq (a,b) andalso eq(P,Q)
+     | eq (Match(t1,P),Match(t2,Q)) =
+       Teq(t1,t2) andalso eq(P,Q)
+     | eq (Sum(P),Sum(Q)) =
+       Lib.eq eq (P,Q)
+     | eq (Parallel(P),Parallel(Q)) =
+       Lib.eq eq (P,Q)
+     | eq (Scope(n1,P1),Scope(n2,P2)) =
+       N.eq (n1,n2) andalso eq(P1,P2)
+     | eq (AgentID(I1),AgentID(I2)) = I1 = I2 
+     | eq (Applic(P1,N1),Applic(P2,N2)) =
+       eq (P1,P2) andalso Lib.eq N.eq (N1,N2)
+     | eq (_,_) = false
+
+end
+

@@ -1,0 +1,23 @@
+TESTING:  q1 {} q1
+TESTING:  q2 [(1, 1)] q2
+TESTING:  q1 {} q1
+TESTING:  q3 [(1, 1), (2, 2)] q3
+TESTING:  q2 [(1, 1)] q2
+TESTING:  q4 [(2, 2), (1, 1), (3, 3)] q4
+TESTING:  q3 [(2, 2), (1, 1)] q3
+TESTING ~:  q4 [(2, 2), (1, 1), (3, 3)] q4
+TESTING:  q3 [(2, 2), (1, 1)] q3
+PASSED:  q4 [(2, 2), (1, 1), (3, 3)] q4
+TESTING ~:  q3 [(1, 1), (2, 2)] q3
+TESTING:  q2 [(1, 1)] q2
+TESTING:  q4 [(2, 2), (1, 1), (3, 3)] q4
+PASSED:  q3 [(1, 1), (2, 2)] q3
+TESTING ~:  q2 [(1, 1)] q2
+TESTING:  q1 {} q1
+TESTING:  q3 [(1, 1), (2, 2)] q3
+PASSED:  q2 [(1, 1)] q2
+TESTING ~:  q1 {} q1
+TESTING:  q2 [(1, 1)] q2
+PASSED:  q1 {} q1
+0.001025
+True

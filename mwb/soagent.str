@@ -1,0 +1,245 @@
+functor SortAgent(structure T : SoTEST;
+	      structure Act : SoACTION;
+	      sharing Act.N = T.N;
+	      structure SL : SORTEDLIST) : SoAGENT =
+struct
+	
+   structure T = T
+   structure N = T.N
+   structure Act = Act
+
+   datatype agent = Nil
+     		  | Prefix of Act.action * agent
+		  | Abs of N.name * agent
+		  | Conc of N.name * agent
+		  | Test of T.test * agent
+		  | Cond of T.test * agent * agent
+                  | Sum of agent list
+                  | Parallel of agent list
+		  | Nu of N.name * agent
+                  | AgentRef of string
+		  | Applic of agent * N.name
+
+   exception WrongArgs of string
+
+   fun makstr _ (Nil) = "0"
+     | makstr mks (Prefix(a,P)) = (Act.mkstr a) ^ "." ^ (mks P)
+     | makstr mks (Abs(n,P)) =
+       let fun prabs (Abs(m,Q)) =
+	   ","^(N.mkstr m)^(prabs Q)
+	     | prabs Q =
+	       ")"^(mks Q)
+       in
+	   "(\\"^(N.mkstr n)^(prabs P)
+       end
+     | makstr mks (Conc(n,P)) =
+       let fun pconc (Conc(m,Q)) =
+	   ","^(N.mkstr m)^(pconc Q)
+	     | pconc Q = "]"^(mks Q)
+       in
+	   "["^(N.mkstr n)^(pconc P)
+       end
+     | makstr mks (Test(t,P)) = (T.mkstr t) ^ (mks P)
+     | makstr mks (Cond(t,P,Q)) =
+       (T.mkstr t)^(mks P)^
+       (case Q of Nil => "" | _ => ","^(mks Q))
+     | makstr mks (Sum(P)) = "(" ^ (Lib.mapconcat mks P " + ") ^ ")"
+     | makstr mks (Parallel(P)) = "(" ^ (Lib.mapconcat mks P " | ") ^ ")"
+     | makstr mks (Nu(n,P)) =
+       let fun pnu (Nu(m,Q)) =
+	   ","^(N.mkstr m)^(pnu Q)
+	     | pnu Q = ")"^(mks Q)
+       in
+	   "(^"^(N.mkstr n)^(pnu P)
+       end
+     | makstr mks (AgentRef(I)) = I
+     | makstr mks (Applic(P,arg)) =
+       let fun papp (Applic(Q,n)) =
+	   (papp Q)^(N.mkstr n)^","
+	     | papp (AgentRef i) = i^"<"
+	     | papp Q = "("^(mks Q)^")<"
+       in
+	   (papp P)^(N.mkstr arg)^">"
+       end
+
+   fun pmkstr (Prefix(a,P)) =		(* print prefixes as actions *)
+       let fun pabs (Abs(m,Q)) =
+	       ","^(N.mkstr m)^(pabs Q)
+	     | pabs Q =
+	       ")."^(pmkstr Q)
+	   fun pconc (Conc(m,Q)) =
+	       ","^(N.mkstr m)^(pconc Q)
+	     | pconc Q = ">."^(pmkstr Q)
+       in
+	   (Act.mkstr a)^
+	   (case P of
+		Abs(n,Q) =>
+		    "("^(N.mkstr n)^(pabs Q)
+	      | Conc(n,Q) =>
+		    "<"^(N.mkstr n)^(pconc Q)
+	      | _ => "."^(pmkstr P))
+       end
+     | pmkstr ag = makstr pmkstr ag
+
+   fun npmkstr ag = makstr npmkstr ag
+
+   fun mkstr ag =
+       if !Flags.printactions
+	   then pmkstr ag
+       else
+	   npmkstr ag
+
+   and id x = x
+
+   fun eq (Nil,Nil) = true
+     | eq (Prefix(a,P),Prefix(b,Q)) =
+       Act.eq(a,b) andalso eq(P,Q)
+     | eq (Abs(a,P),Abs(b,Q)) =
+       N.eq (a,b) andalso eq(P,Q)
+     | eq (Conc(a,P),Conc(b,Q)) =
+       N.eq (a,b) andalso eq(P,Q)
+     | eq (Test(t1,P),Test(t2,Q)) =
+       T.eq(t1,t2) andalso eq(P,Q)
+     | eq (Cond(t1,P1,Q1),Cond(t2,P2,Q2)) =
+       T.eq(t1,t2) andalso eq(P1,P2) andalso eq(Q1,Q2)
+     | eq (Sum(P),Sum(Q)) =
+       Lib.eq eq (P,Q)
+     | eq (Parallel(P),Parallel(Q)) =
+       Lib.eq eq (P,Q)
+     | eq (Nu(n1,P1),Nu(n2,P2)) =
+       N.eq (n1,n2) andalso eq(P1,P2)
+     | eq (AgentRef(I1),AgentRef(I2)) = I1 = I2 
+     | eq (Applic(P1,N1),Applic(P2,N2)) =
+       eq (P1,P2) andalso N.eq (N1,N2)
+     | eq (_,_) = false
+
+   fun is_nil(Nil) = true
+     | is_nil _ = false
+   and is_prefix(Prefix _) = true
+     | is_prefix _ = false
+   and is_sum(Sum _) = true
+     | is_sum _ = false
+   and is_parallel(Parallel _) = true
+     | is_parallel _ = false
+   and is_restriction(Nu _) = true
+     | is_restriction _ = false
+   and is_abstraction(Abs _) = true
+     | is_abstraction _ = false
+   and is_concretion(Conc _) = true
+     | is_concretion _ = false
+   and is_match(Test _) = true
+     | is_match _ = false
+   and is_conditional(Cond _) = true
+     | is_conditional _ = false
+   and is_application(Applic _) = true
+     | is_application _ = false
+   and is_identifier(AgentRef _) = true
+     | is_identifier _ = false
+
+   fun mk_nil () = Nil
+   and mk_prefix(a,p) = Prefix(a,p)
+   and mk_sum(pp) = Sum(pp)
+   and mk_parallel pp = Parallel(pp)
+   and mk_restriction (n,p) = Nu(n,p)
+   and mk_abstraction (n,p) = Abs(n,p)
+   and mk_concretion (n,p) = Conc(n,p)
+   and mk_match (t,p) = Test(t,p)
+   and mk_conditional (t,p,q) = Cond(t,p,q)
+   and mk_application (p,n) = Applic(p,n)
+   and mk_identifier i = AgentRef i
+
+   fun prefix_agent(Prefix(_,a)) = a
+   and prefix_act(Prefix(a,_)) = a
+   and sum_summands(Sum pp) = pp
+   and parallel_pars(Parallel pp) = pp
+   and restriction_name(Nu(n,_)) = n
+   and restriction_agent(Nu(_,a)) = a
+   and abstraction_name(Abs(n,_)) = n
+   and abstraction_agent(Abs(_,f)) = f
+   and concretion_name(Conc(n,_)) = n
+   and concretion_agent(Conc(_,c)) = c
+   and match_test(Test(t,_)) = t
+   and match_positive(Test(_,p)) = p
+   and conditional_positive(Cond(_,a,_)) = a
+   and conditional_negative(Cond(_,_,a)) = a
+   and application_arg(Applic(_,n)) = n
+   and application_abstr(Applic(f,_)) = f
+   and identifier_name(AgentRef i) = i
+
+   fun free_names(Nil) = []
+     | free_names (Prefix(a,p)) =
+       if Act.is_tau(a) then free_names p
+       else SL.add N.le true (Act.name a,free_names p)
+     | free_names (Sum pp) = Lib.fold (fn (p,nl) =>
+				   SL.merge N.le true (free_names p,nl)) pp []
+     | free_names (Parallel pp) =
+       Lib.fold (fn (p,nl) => SL.merge N.le true (free_names p,nl)) pp []
+     | free_names (Nu(n,p)) = SL.remove id N.le (n,free_names p)
+     | free_names (Abs(n,p)) = SL.remove id N.le (n,free_names p)
+     | free_names (Conc(n,p)) = SL.add N.le true (n,free_names p)
+     | free_names (Test(t,p)) = 
+       Lib.fold (SL.merge N.le true) [T.names t,free_names p] []
+     | free_names (Cond(t,p,q)) =
+       Lib.fold (SL.merge N.le true) [T.names t,free_names p,free_names q] []
+     | free_names (Applic(a,n)) = SL.add N.le true (n,free_names a)
+     | free_names (AgentRef _) = []
+
+(* instantiate (n,ag,free) => (newname,ag') *)
+   fun instantiate (n,ag,free) =
+       let fun nextname i (n,nouse) =
+	   if not (SL.member N.le (n,nouse)) then n
+	   else
+	       let fun next i (n,nouse) =
+		   let val nn = N.mkname((N.mkstr n)^(Lib.mkstrint (i+1)))
+		   in
+		       if not (SL.member N.le (nn,nouse))
+			   then nn
+		       else
+			   next (i+1) (n,nouse)
+		   end
+	       in next 0 (n,nouse)
+	       end
+	   and inst (n,nn) Nil = Nil
+	     | inst (n,nn) (Prefix(a,p)) =
+	       Prefix(Act.substitute(nn,n,a),inst (n,nn) p)
+	     | inst (n,nn) (Sum pp) =
+	       Sum(map (inst (n,nn)) pp)
+	     | inst (n,nn) (Parallel pp) =
+	       Sum(map (inst (n,nn)) pp)
+	     | inst (n,nn) (A as (Nu(m,p))) =
+	       if N.eq(n,m) then A
+	       else if N.eq(nn,m) then
+		   let val nm = nextname 0 (m,SL.merge N.le true (free,free_names(p)))
+		   in (* alpha conversion, sigh *)
+		       Nu(nm,inst (n,nn) (inst (m,nm) p))
+		   end
+	       else Nu(m,inst (n,nn) p)
+	     | inst (n,nn) (A as (Abs(m,p))) =
+	       if N.eq(n,m) then A
+	       else if N.eq(nn,m) then
+		   let val nm = nextname 0 (m,SL.merge N.le true (free,free_names(p)))
+		   in
+		       Abs(nm,inst (n,nn) (inst (m,nm) p))
+		   end
+	       else Abs(m,inst (n,nn) p)
+	     | inst (n,nn) (Conc(m,p)) =
+	       if N.eq(n,m) then Conc(nn,inst (n,nn) p)
+	       else Conc(m,inst (n,nn) p)
+	     | inst (n,nn) (Test(t,p)) =
+	       Test(T.substitute (nn,n,t),
+		    inst (n,nn) p)
+	     | inst (n,nn) (Cond(t,p,q)) =
+	       Cond(T.substitute (nn,n,t),
+		    inst (n,nn) p,
+		    inst (n,nn) q)
+	     | inst (n,nn) (Applic(p,m)) =
+	       if N.eq(n,m) then Applic(inst (n,nn) p,nn)
+	       else Applic(inst (n,nn) p,m)
+	     | inst (n,nn) (A as (AgentRef i)) =
+	       A
+	   val newname = nextname 0 (n,free)
+       in
+	   (newname,inst (n,newname) ag)
+       end
+end
+

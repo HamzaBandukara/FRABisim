@@ -1,0 +1,17 @@
+AGENT A(a):=(GEN(a)|C(a));
+AGENT GEN(a):=^b a<b>.GEN(a);
+AGENT C(a):=a(c).[c#a]a<a>.D(a,c);
+AGENT D(a,c):=(a<c>.C(a)+a(d).[d#a][d#c]a<a>.E(a,c,d));
+AGENT E(a,c,d):=(a<d>.D(a,c)+a(e).[e#a][e#c][e#d]a<a>.F(a,c,d,e));
+AGENT F(a,c,d,e):=(a<e>.E(a,c,d)+a(f).[f#a][f#c][f#d][f#e]a<a>.G(a,c,d,e,f));
+AGENT G(a,c,d,e,f):=(a<f>.F(a,c,d,e)+a(g).[g#a][g#c][g#d][g#e][g#f]a<a>.H(a,c,d,e,f,g));
+AGENT H(a,c,d,e,f,g):=a<g>.G(a,c,d,e,f);
+AGENT B(a):=(GEN(a)|K(a));
+AGENT K(a):=a(c).[c#a]a<a>.L(a,c);
+AGENT L(a,c):=(a<c>.K(a)+a(d).[d#a][d#c]a<a>.M(a,c,d));
+AGENT M(a,c,d):=(a<d>.L(a,c)+a(e).[e#a][e#c][e#d]a<a>.N(a,c,d,e));
+AGENT N(a,c,d,e):=(a<e>.M(a,c,d)+a(f).[f#a][f#c][f#d][f#e]a<a>.O(a,c,d,e,f));
+AGENT O(a,c,d,e,f):=(a<f>.N(a,c,d,e)+a(g).[g#a][g#c][g#d][g#e][g#f]a<a>.P(a,c,d,e,f,g));
+AGENT P(a,c,d,e,f,g):=a<g>.O(a,c,d,e,f);
+TEST A(a)
+WITH B(a);;

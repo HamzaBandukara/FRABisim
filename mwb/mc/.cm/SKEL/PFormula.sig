@@ -1,0 +1,2 @@
+Skeleton 5
+ac"PFORMULA"h3ad"CST"gp1c"CONSTANT"ad"ACT"gp1c"ACTION"ad"P"gp1c"PROPVAR"

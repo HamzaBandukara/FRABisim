@@ -1,0 +1,244 @@
+(* Condition, built from equiv and distinction *)
+
+functor Cond(structure N : NAME;
+	     structure E : EQUIV;
+	     sharing E.N = N;
+	     structure SL : SORTEDLIST) : COND =
+struct
+    structure N = N
+    structure E = E
+	
+    datatype cond = Cond of E.equiv * (N.name * N.name) list | False
+      | Disjunction of cond list
+	
+    val True = Cond(E.EmptyE,[])
+	
+    (* returns a list of the names in a equiv *)
+    fun names(Cond(e,nl)) =
+	SL.merge N.le true ((E.names e),(Lib.mapcan (fn (a,b)=>[a,b]) nl))
+      | names False = []
+    (* This is the domain of the associated substitution *)
+    fun domain(Cond(e,nl)) = E.names e
+      | domain False = []
+
+    fun free_names(Cond(e,d),lvl) =
+	(E.free_names (e,lvl))@
+	(Lib.fold (fn ((a,b),l) =>
+	       if N.is_free(a,lvl) then
+		   if N.is_free(b,lvl) then
+		       (N.free(a,lvl))::(N.free(b,lvl))::l
+		   else
+		       (N.free(a,lvl))::l
+	       else
+		   if N.is_free(b,lvl) then
+		       (N.free(b,lvl))::l
+		   else l) d [])
+      | free_names (False,_) = []
+	
+    fun inc(False) = False
+      | inc (Cond(e,d)) =
+	Cond(E.inc(e),Lib.fold (fn ((a,b),l) => (N.succ a,N.succ b)::l) d [])
+
+    fun is_true(Cond(e,d)) = E.is_empty(e) andalso null d
+      | is_true False = false
+    fun is_false(False) = true
+      | is_false (Cond(_,_)) = false
+
+    fun mkstr False = "[False]"
+      | mkstr(x as Cond(e,d)) =
+	if is_true(x) then "[True]"
+	else
+	    "["^
+	    (if E.is_empty(e) then ""
+	     else (E.mkstr e)^(if null d then "" else ","))^
+	    (let fun mkstr_neq(a,b) = (N.mkstr a)^"#"^(N.mkstr b)
+	     in Lib.mapconcat mkstr_neq d ","
+	     end)^"]"		 
+      | mkstr (Disjunction cl) =
+	"["^(Lib.mapconcat mkstr cl " V ")^"]"
+		 
+    
+    fun makstr (False,_)="[False]"
+      | makstr(x as Cond(e,d),nl) =
+	if is_true(x) then "[True]"
+	else
+	    "["^
+	    (if E.is_empty(e) then ""
+	    else (E.makstr (e,nl))^(if null d then "" else ","))^
+	    (let fun mkstr_neq(a,b) = (N.makstr(a,nl))^"#"^(N.makstr(b,nl))
+	     in Lib.mapconcat mkstr_neq d ","
+	     end)^"]"
+      | makstr (Disjunction cl,nl) =
+	"["^(Lib.mapconcat (fn c=>(makstr(c,nl))) cl " V ")^"]"
+    
+    fun match (n1,n2) =
+	Cond(E.equate(n1,n2),[])
+    fun mismatch (n1,n2) =
+	if N.le(n1,n2)			(* Keep them ordered *)
+	    then if N.le(n2,n1) then False
+		 else Cond(E.EmptyE,[(n1,n2)])
+	else Cond(E.EmptyE,[(n2,n1)])
+    fun equiv(Cond(e,_)) = e
+    fun mk_equiv(e) = Cond(e,[])
+	    
+    fun hd (h::t) = h
+    fun tl (h::t) = t
+
+    fun d_le ((a,c),(b,d)) =		(* a<=b & (a<b | c<=d) *)
+	N.le(a,b) andalso (not(N.le(b,a)) orelse N.le(c,d))
+    fun djoin(d1,d2) = SL.merge d_le true (d1,d2)
+    fun dremove(d1,d2) = SL.minus (fn x=>x) d_le (d1,d2)
+
+    fun dminus(Cond(e,d),n) =
+	let val v = Cond(e,Lib.fold (fn (x as (a,b),l)=>
+				 if N.eq(n,a) orelse N.eq(n,b) then l
+				 else x::l) d [])
+	in
+	    if !Flags.tracelevel>2 then
+		Lib.dprint(0,(mkstr (Cond(e,d)))^"\\"^(N.mkstr n)^" => "^
+			   (mkstr v)) else ();
+	    v
+	end	
+      | dminus (False,_) = False
+
+
+    fun eminus (False,_) = False
+      | eminus (Cond(e1,d1),e2) = 
+	Cond(E.remove(e1,e2),d1)
+
+    fun restrict_to (x,[]) = True
+      | restrict_to(c as Cond(e,d),nl) =
+	let val x = 
+	    Cond(E.restrict_to(e,nl),
+		 Lib.fold (fn (x as (a,b),l) =>
+		       if Lib.member N.eq (a,nl) andalso Lib.member N.eq (b,nl)
+			   then x::l
+		       else l) d [])
+	in
+	    if !Flags.tracelevel>2 then
+		Lib.dprint(0,(mkstr c)^"\\{"^(Lib.mapconcat N.mkstr nl ",")^"} => "^(mkstr x)) else ();
+	    x
+	end
+      | restrict_to (False,_) = False
+
+    (* Join two equivalences *)
+    fun join (False,_) = False
+      | join (_,False) = False
+      | join (Cond(e1,d1),Cond(e2,d2)) =
+	let val ej = E.join(e1,e2)
+	    val dj = djoin(d1,d2)
+	in
+	    if Lib.exists (fn (a,b) => E.implies(ej,E.equate(a,b))) dj then
+		False
+	    else
+		Cond(ej,dj)
+	end
+
+    fun implies (False,_) = true
+      | implies (_,False) = false
+      | implies (Cond(e1,d1),Cond(e2,d2)) =
+	E.implies(e1,e2) andalso
+	Lib.forall (fn d=>SL.member d_le (d,d1)) d2
+      | implies (c,Disjunction(d)) =
+	Lib.exists (fn x=>implies(c,x)) d
+
+    and disjunction [] = False
+      | disjunction [x] = x
+      | disjunction clist =
+	let fun disj [x] = [x]
+	      | disj cl =
+		let val bort = 
+		    Lib.fold (fn ((a,b),bt) =>
+			  if Lib.exists (fn c=>implies(c,match(a,b))) cl 
+			      then (a,b)::bt
+			  else bt) (Lib.fold (fn (Cond(_,d),r)=>djoin(d,r)) cl []) []
+		in
+		    if null bort then
+			Lib.fold (fn (c,l)=>if is_true(c) then l else c::l) cl []
+		    else
+			let val d'e = Lib.fold (fn ((a,b),e)=>
+					    E.join(E.equate(a,b),e)) bort E.EmptyE
+			in
+			    Lib.fold (fn (Cond(e,d),r)=>
+				  let val (x,y) = (E.remove(e,d'e),
+						   dremove(d,bort))
+				  in
+				      if is_true(Cond(x,y)) then r
+				      else (Cond(x,y))::r
+				  end) cl []
+			end
+		end
+	    val _ = if !Flags.tracelevel>2 then
+		Lib.dprint(1,"disjunction("^(Lib.mapconcat mkstr clist ",")^")") else ()
+	    val dl = disj clist
+	    val d = if null dl then True else Disjunction dl
+	    val _ = if !Flags.tracelevel>2 then
+		Lib.dprint(~1,(mkstr d)) else ()
+	in
+	    d
+	end
+
+
+    fun eq (False,False) = true
+      | eq (Cond(e1,d1),Cond(e2,d2)) =
+	E.eq(e1,e2)
+	andalso
+	Lib.eq (fn ((a,b),(c,d)) => N.eq(a,c) andalso N.eq(b,d)) (d1,d2)
+      | eq (_,_) = false
+
+    fun ceq C (a,b) = eq(join(C,a),join(C,b))
+
+    fun sigma(False) = []		(* as good as any *)
+      | sigma (Cond(e,_)) = E.sigma(e)
+
+    fun substitute(False,_) = False
+      | substitute (Cond(e,d),subs) =
+	if Lib.exists (fn p=>SL.member d_le (p,d)) subs then False
+	else
+	    let fun sb (c,d) [] = (c,d)
+		  | sb (c,d) ((a,b)::l) =
+		if N.eq(a,b) then sb (c,d) l
+		else if N.eq(b,c) then (a,d)
+		else if N.eq(b,d) then (c,a)
+		     else sb (c,d) l
+		val d' =
+		SL.sort d_le true (map (fn (a,b) => sb (a,b) subs) d)
+	    in
+		Cond(E.substitute(e,subs),d')
+	    end
+
+
+    exception FF
+
+    fun beta_reduce False _ = False
+      | beta_reduce (Cond(eq,d)) e =
+	(let val e' = E.beta_reduce eq e
+	    val d' = Lib.map (fn (a,b) =>
+			      let val (a',b') =
+				  (N.beta_reduce a e,N.beta_reduce b e)
+			      in
+				  if N.eq(a',b') orelse
+				      E.implies(e',E.equate(a',b')) then
+				      raise FF
+				  else (a',b')
+			      end) d
+	in
+	    Cond(e',d')
+	end
+        handle FF => False)
+
+    fun negate(c as Cond(e,[])) =
+	let val (a,b)::r = E.sigma(e)
+	in
+	    if (null r) then
+		mismatch(a,b)
+	    else
+		raise Lib.disaster ("Negating non-atomic match condition: "^(mkstr c))
+	end
+      | negate (c as Cond(e,[(a,b)])) =
+	if E.is_empty(e) then
+	    match(a,b)
+	else
+	    raise Lib.disaster ("Negating non-atomic mismatch condition: "^(mkstr c))
+      | negate c = raise Lib.disaster ("Negating non-atomic condition: "^(mkstr c))
+end

@@ -1,0 +1,569 @@
+structure A = Agent
+structure Act = A.Act
+structure N = Act.N
+structure Cmd = Commands
+
+structure FA = SFAgent
+structure FAct = FA.Act
+
+fun flat_par [] = []
+  | flat_par ((A.Parallel(P))::R) =
+    P@(flat_par R)
+  | flat_par (A::R) =
+    A::(flat_par R)
+and flat_sum [] = []
+  | flat_sum ((A.Sum(P))::R) =
+    P@(flat_sum R)
+  | flat_sum (A::R) =
+    A::(flat_sum R)
+
+fun fflat_par [] = []
+  | fflat_par ((FA.Parallel(P))::R) =
+    P@(fflat_par R)
+  | fflat_par (A::R) =
+    A::(fflat_par R)
+and fflat_sum [] = []
+  | fflat_sum ((FA.Sum(P))::R) =
+    P@(fflat_sum R)
+  | fflat_sum (A::R) =
+    A::(fflat_sum R)
+
+fun mk_parallel(L) = A.Parallel(L)
+(*    let val NL = Lib.rm A.eq (A.Nil,L)
+    in
+	case NL of
+	    [] => A.Nil
+	  | [x] => x
+	  | _ => A.Parallel(NL)
+    end
+*)
+and mk_sum (L) = A.Sum(L)
+(*    let val NL = Lib.rm A.eq (A.Nil,L)
+    in
+	case NL of
+	    [] => A.Nil
+	  | [x] => x
+	  | _ => A.Sum(NL)
+    end
+*)
+
+%%
+
+%name PI
+%header (functor PILrValsFun (structure Token : TOKEN;
+			      structure Agent : SAGENT;
+			      structure Prop : SPROPVAR
+			      structure F : SFORMULA
+				sharing F.ACT = Agent.Act
+				sharing F.P = Prop
+			      structure SFAgent : SFAGENT
+			        sharing SFAgent.Act.N = Agent.Act.N
+			      structure Commands : COMMANDS
+				sharing Commands.A = Agent
+				sharing Commands.F = F;
+				sharing Commands.FA = SFAgent) : PI_LRVALS)
+
+%eop EOF EOL
+%pos int
+
+%start nstart
+
+%term	ID of string | ACT of string | NUM of int | TAU of string |
+	STRING of string |
+	PAR | PLUS | NIL | ONE |
+	LPAR | RPAR | LBRACK | RBRACK | LBRACE | RBRACE | LESSTHAN | GREATERTHAN |
+	DOT | BACKSLASH | SLASH | EQUALS | HAT | QUOTE | SHARP | AMPERSAND |
+	BANG | QUERY | COMMA | SEMICOLON | EOF |
+	EOL |
+	DummyCMD | DummyAGENT | DummyFORMULA |
+	ACTIONS of string | ALL of string | AGENT of string |
+	CHECK of string | CLEAR of string | DEAD of string |
+	DEBUG of string | ENVIRONMENT of string | EQ of string | 
+	EQD of string | FORMULA of string | PROVE of string |
+        INPUT of string | PRINT of string | STEP of string | ZTEP of string |
+	SORT of string | SIZE of string | THRESHOLD of string |
+	HASHDEPTH of string |
+	TIME of string | TRACES of string | TABLES of string | 
+	TRANS of string |
+        VERIFY of string |
+	WTRANS of string | WEQ of string | WEQD of string |
+	HELP of string | QUIT of string | REWRITE of string | 
+	REMEMBER of string | ON of string | OFF of string | TRUE of string |
+	FALSE of string | VERSION of string | SET of string | SHOW of string
+	| TT of string | FF of string
+	| NOT of string | EXISTS of string | SOME2 of string | PI of string | BSIGMA of string |
+	SIGMA of string | MU of string | NU of string | MIN of string | MAX of string
+	| FAGENT of string | FEQ of string | FTRANS of string
+	| FWEQ of string | FWTRANS of string
+
+%nonterm	nstart of Cmd.Parse |
+		command of Cmd.Command |
+		agent of A.agent | 
+		action of Act.action |
+		prefix of A.agent |
+		concretion of A.agent |
+		abstr of A.agent |
+		process of A.agent |
+		process_piece of A.agent |
+		process_par of A.agent |
+		norm_proc of A.agent |
+		norm_proc_piece of A.agent |
+		norm_proc_end of A.agent |
+		name of N.name |
+		idifier of string |
+		agdef of (string * A.agent) |
+                fdef of (string * F.formula) |
+		namelist of N.name list |
+		conclist of N.name list |
+		abslist of N.name list |
+		formula of F.formula |
+		number of int |
+		boolean of bool |
+		helpcmd of Cmd.HelpC.HelpC |
+		setcmd of Cmd.SetC.SetC |
+		showcmd of Cmd.ShowC.ShowC
+		|
+		fagent of FA.agent |
+		faction of FAct.action |
+		fprefix of FA.agent |
+		fname of N.name |
+		fnamelist of N.name list |
+		feqlist of ((N.name * N.name) list * (N.name * N.name) list) |
+		nameeqlist of (N.name * N.name) list |
+		fagdef of (string * N.name list * FA.agent) 
+		
+%right RPAR LPAR
+%left PLUS
+%left PAR AMPERSAND
+%right DOT
+%right BACKSLASH
+%right LESSTHAN GREATERTHAN
+%right LBRACK RBRACK
+%nonassoc COMMA NOT
+%noshift EOF EOL
+
+%nodefault
+%verbose
+%pure
+%%
+
+
+(* parses e.g. t.<x>0 which it shouldn't, I think *)
+agent:		NIL
+		  (A.Nil)
+		| action DOT agent
+		  (A.Prefix (action, agent))
+		| prefix
+		  (prefix)
+		| LBRACK feqlist RBRACK agent %prec RBRACK
+		  (A.Test (feqlist, agent))
+		| agent PLUS agent
+		  (A.Sum (flat_sum [agent1, agent2]))
+		| idifier	%prec LPAR
+		  (A.AgentRef (idifier))
+		| LPAR HAT namelist RPAR agent %prec LBRACK
+		  (Lib.fold (fn (n,proc) => A.Nu(n,proc)) namelist agent)
+		| idifier LESSTHAN namelist GREATERTHAN
+		  (Lib.fold (fn (n,proc) => A.Applic(proc,n))
+			(rev namelist) (A.AgentRef(idifier)))
+		| idifier LPAR namelist RPAR
+		(* for bkwds compatibility *)
+		  (Lib.fold (fn (n,proc) => A.Applic(proc,n))
+			(rev namelist) (A.AgentRef(idifier)))
+		| LPAR agent RPAR LESSTHAN namelist GREATERTHAN
+		  (Lib.fold (fn (n,proc) => A.Applic(proc,n)) (rev namelist) agent)
+		| LPAR agent RPAR
+		  (agent)
+		| agent PAR agent
+		  (A.Parallel (flat_par [agent1, agent2]))
+		| abstr
+		  (abstr)
+		| concretion
+		  (concretion)
+
+abstr:		LPAR BACKSLASH namelist RPAR agent %prec GREATERTHAN
+		(Lib.fold (fn (n,proc) => A.Abs(n,proc)) namelist agent)
+
+concretion:	LBRACK namelist RBRACK agent %prec RBRACK
+		(Lib.fold (fn (n,proc) => A.Conc(n,proc)) namelist agent)
+(* *)
+
+action:		  TAU
+		  (Act.Tau)
+		| name
+		  (Act.Input(name))
+		| QUOTE name
+		  (Act.Output(name))
+
+
+
+name:		  ACT
+		  (N.mkname (ACT))
+		  (* #### add keywords here too *)
+		(* But only non-tau kwds starting with a lower-case letter *)
+		 | ACTIONS (N.mkname(ACTIONS))
+		 | ALL (N.mkname(ALL))
+		 | AGENT (N.mkname(AGENT))
+		 | CHECK (N.mkname(CHECK))
+		 | PROVE (N.mkname(PROVE))
+	         | CLEAR (N.mkname(CLEAR))
+		 | DEAD (N.mkname(DEAD))
+		 | DEBUG (N.mkname(DEBUG))
+		 | ENVIRONMENT (N.mkname(ENVIRONMENT))
+		 | EQ (N.mkname(EQ))
+		 | EQD (N.mkname(EQD))
+                 | FORMULA (N.mkname(FORMULA))
+		 | HASHDEPTH (N.mkname(HASHDEPTH))
+		 | INPUT (N.mkname(INPUT))
+		 | PRINT (N.mkname(PRINT))
+		 | REWRITE (N.mkname(REWRITE))
+		 | REMEMBER (N.mkname(REMEMBER))
+		 | SET (N.mkname(SET))
+		 | SHOW (N.mkname(SHOW))
+		 | SORT (N.mkname(SORT))
+		 | STEP (N.mkname(STEP))
+		 | ZTEP (N.mkname(ZTEP))
+		 | SIZE (N.mkname(SIZE))
+		 | TABLES (N.mkname(TABLES))
+		 | THRESHOLD (N.mkname(THRESHOLD))
+		 | TIME (N.mkname(TIME))
+		 | TRACES (N.mkname(TRACES))
+		 | TRANS (N.mkname(TRANS))
+                 | VERIFY (N.mkname(VERIFY))
+		 | VERSION (N.mkname(VERSION))
+		 | WTRANS (N.mkname(WTRANS))
+		 | WEQ (N.mkname(WEQ))
+		 | WEQD (N.mkname(WEQD))
+		 | HELP (N.mkname(HELP))
+		 | QUIT (N.mkname(QUIT))
+		 | TRUE (N.mkname(TRUE))
+		 | FALSE (N.mkname(FALSE))
+		 | ON (N.mkname(ON))
+		 | OFF (N.mkname(OFF))
+		 | EXISTS (N.mkname(EXISTS))
+		 | SOME2 (N.mkname(SOME2))
+		 | NOT (N.mkname(NOT))
+		 | NU (N.mkname(NU))
+		 | MU (N.mkname(MU))
+                 | MAX (N.mkname(MAX))
+                 | MIN (N.mkname(MIN))
+		 | FAGENT (N.mkname(FAGENT))
+		 | FEQ (N.mkname(FEQ))
+		 | FTRANS (N.mkname(FTRANS))
+		 | FWEQ (N.mkname(FWEQ))
+		 | FWTRANS (N.mkname(FWTRANS))
+
+
+idifier:	ID (ID)
+		(* plus keywords starting with upper-case letter *)
+(*		| TT (TT)
+		| FF (FF)
+*)
+		| SIGMA (SIGMA)
+		| BSIGMA (BSIGMA)
+		| PI (PI)
+
+(* a(x).P == a.(\x)P *)
+(* 'a<x>.P == a.[x]P *)
+prefix:		  name LPAR namelist RPAR DOT agent
+		  (A.Prefix(Act.Input(name), Lib.fold (fn (n,proc) => A.Abs(n,proc)) namelist agent))
+		| QUOTE name LESSTHAN namelist GREATERTHAN DOT agent
+		  (A.Prefix(Act.Output(name), Lib.fold (fn (n,proc) => A.Conc(n,proc)) namelist agent))
+
+
+(* X = abs *)
+(* X(y) = agt *)
+agdef:		  idifier EQUALS agent
+		  (idifier, agent)
+		| idifier LPAR namelist RPAR EQUALS agent
+		  (idifier, Lib.fold (fn (n,proc) => A.Abs(n,proc)) namelist agent)
+
+
+fdef:		  idifier EQUALS formula
+		  (idifier, formula)
+
+namelist:	  name
+		  ([name])
+		| namelist COMMA name
+		  (namelist @ [name])
+
+(******)
+formula:	  TT
+		  (F.True)
+		| FF
+		  (F.False)
+		| name EQUALS name
+		  (F.IsEq (name1,name2))
+		| name SHARP name
+		  (F.IsNeq (name1,name2))
+		| formula AMPERSAND formula
+		  (F.And (formula1,formula2))
+		| formula PAR formula
+		  (F.Or (formula1,formula2))
+		| LESSTHAN action GREATERTHAN formula
+		  (F.Diamond (action,formula))
+		| LBRACK action RBRACK formula
+		  (F.Box (action,formula))
+		| idifier LPAR namelist RPAR
+		  (F.RootedVar ((Prop.mk_propvar idifier),namelist))
+		| idifier 
+		  (F.RootedVar ((Prop.mk_propvar idifier),[]))
+		| LPAR NU idifier LPAR namelist RPAR DOT formula RPAR LPAR namelist RPAR
+		  (F.RootedGFP ((Prop.mk_propvar idifier),namelist1,formula,namelist2))
+		| NU idifier DOT formula
+		  (F.RootedGFP ((Prop.mk_propvar idifier),nil,formula,nil))
+		| LPAR MU idifier LPAR namelist RPAR DOT formula RPAR LPAR namelist RPAR
+		  (F.RootedLFP ((Prop.mk_propvar idifier),namelist1,formula,namelist2))
+		| MU idifier DOT formula
+		  (F.RootedLFP ((Prop.mk_propvar idifier),nil,formula,nil))
+		| LPAR MAX idifier LPAR namelist RPAR DOT formula RPAR LPAR namelist RPAR
+		  (F.RootedGFP ((Prop.mk_propvar idifier),namelist1,formula,namelist2))
+		| MAX idifier DOT formula
+		  (F.RootedGFP ((Prop.mk_propvar idifier),nil,formula,nil))
+		| LPAR MIN idifier LPAR namelist RPAR DOT formula RPAR LPAR namelist RPAR
+		  (F.RootedLFP ((Prop.mk_propvar idifier),namelist1,formula,namelist2))
+		| MIN idifier DOT formula
+		  (F.RootedLFP ((Prop.mk_propvar idifier),nil,formula,nil))
+		| SIGMA name DOT formula
+		  (F.Sigma (name,formula))
+		| BSIGMA name DOT formula
+		  (F.BSigma (name,formula))
+		| ALL name DOT formula
+		  (F.Pi (name,formula))
+		| PI name DOT formula
+		  (F.Pi (name,formula))
+		| SOME2 name DOT formula
+		  (F.Exists (name,formula))
+		| EXISTS name DOT formula
+		  (F.Exists (name,formula))
+		| NOT formula
+		  (F.Not formula)
+		| LPAR formula RPAR
+		  (formula)
+(******)
+
+
+boolean:	ON (true)
+	      | OFF (false)
+	      | TRUE (true)
+	      | FALSE (false)
+
+number:		NUM
+		(NUM)
+	      | NIL
+		(0)
+	      | ONE
+		(1)
+
+nstart:		DummyCMD command 
+		(Cmd.ParseCMD(command))
+	      | DummyCMD 
+		(Cmd.ParseCMD(Cmd.NULL))
+	      | DummyAGENT agent
+		(Cmd.ParseAGENT(agent))
+	      | DummyFORMULA formula
+		(Cmd.ParseFORMULA(formula))
+
+
+setcmd:		DEBUG number
+		(Cmd.SetC.Debug(number))
+	      | THRESHOLD number
+	        (Cmd.SetC.Threshold(number))
+	      | HASHDEPTH number
+		(Cmd.SetC.Hashdepth(number))
+	      | REWRITE boolean
+	        (Cmd.SetC.Rewrite(boolean))
+	      | REMEMBER boolean
+	        (Cmd.SetC.Remember(boolean))
+	      | PRINT ACTIONS boolean
+		(Cmd.SetC.PrintActions(boolean))
+	      | QUERY
+	        (Cmd.SetC.Help)
+	        
+showcmd:	DEBUG (Cmd.ShowC.Debug)
+	      | THRESHOLD (Cmd.ShowC.Threshold)
+	      | HASHDEPTH (Cmd.ShowC.Hashdepth)
+	      | REWRITE (Cmd.ShowC.Rewrite)
+	      | REMEMBER (Cmd.ShowC.Remember)
+	      | PRINT ACTIONS (Cmd.ShowC.PrintActions)
+	      | VERSION (Cmd.ShowC.Version)
+	      | TABLES (Cmd.ShowC.Tables)
+	      | QUERY (Cmd.ShowC.Help)
+	      | ALL (Cmd.ShowC.All)
+	      | (Cmd.ShowC.All)
+
+helpcmd:	ALL (Cmd.HelpC.All)
+	      | AGENT (Cmd.HelpC.Agent)
+              | CHECK (Cmd.HelpC.Check)
+	      | CLEAR (Cmd.HelpC.Clear)
+	      | DEAD (Cmd.HelpC.Dead)
+	      | ENVIRONMENT (Cmd.HelpC.Env)
+              | FORMULA (Cmd.HelpC.Form)
+	      | EQ (Cmd.HelpC.Eq)
+	      | EQD (Cmd.HelpC.Eqd)
+	      | INPUT (Cmd.HelpC.Input)
+	      | PROVE (Cmd.HelpC.Prove)
+	      | SET (Cmd.HelpC.Set)
+	      | SHOW (Cmd.HelpC.Show)
+	      | STEP (Cmd.HelpC.Step)
+	      | ZTEP (Cmd.HelpC.Ztep)
+	      | SIZE (Cmd.HelpC.Size)
+	      | SORT (Cmd.HelpC.Sort)
+	      | TIME (Cmd.HelpC.Time)
+	      | TRACES (Cmd.HelpC.Traces)
+	      | TRANS (Cmd.HelpC.Trans)
+              | VERIFY (Cmd.HelpC.Verify)
+	      | WTRANS (Cmd.HelpC.Wtrans)
+	      | WEQ (Cmd.HelpC.Weq)
+	      | WEQD (Cmd.HelpC.Weqd)
+	      | HELP (Cmd.HelpC.Help)
+	      | QUERY (Cmd.HelpC.Help)
+	      | QUIT (Cmd.HelpC.Quit)
+	      | FAGENT (Cmd.HelpC.FAgent)
+	      | FEQ (Cmd.HelpC.Feq)
+	      | FTRANS (Cmd.HelpC.FTransitions)
+	      | FWEQ (Cmd.HelpC.Fweq)
+	      | FWTRANS (Cmd.HelpC.FWTransitions)
+
+command:	AGENT agdef
+		(Cmd.Agent(agdef))
+	      | CHECK agent formula
+		(Cmd.Check(agent,formula))
+	      | PROVE agent formula
+		(Cmd.Prove(agent,formula))
+	      | CLEAR idifier
+		(Cmd.Clear(idifier))
+	      | CLEAR 
+		(Cmd.Clear(""))
+	      | DEAD agent
+		(Cmd.Dead(agent))
+	      | ENVIRONMENT idifier
+		(Cmd.Environment(idifier))
+	      | ENVIRONMENT
+		(Cmd.Environment(""))
+	      | EQ agent agent
+		(Cmd.Eq(agent1,agent2))
+	      | EQD LPAR namelist RPAR agent agent
+		(Cmd.EqD(agent1,agent2,namelist))
+              | FORMULA fdef
+                (Cmd.Formula(fdef))
+	      | INPUT STRING
+		(Cmd.Input(STRING))
+	      | SET setcmd
+		(Cmd.Set(setcmd))
+	      | SHOW showcmd
+		(Cmd.Show(showcmd))
+	      | STEP agent
+		(Cmd.Step(agent))
+	      | ZTEP agent
+		(Cmd.Ztep(agent))
+	      | SIZE agent
+		(Cmd.Size(agent))
+	      | SORT agent
+		(Cmd.Sort(agent))
+	      | TIME command
+		(Cmd.Time command)
+	      | TRACES agent
+		(Cmd.Traces(agent))
+	      | TRANS agent
+		(Cmd.Transitions(agent))
+              | VERIFY number boolean agent formula
+                (Cmd.Verify(number,boolean,agent,formula))
+	      | WTRANS agent
+		(Cmd.Wtransitions(agent))
+	      | WEQ agent agent
+		(Cmd.Weq(agent1,agent2))
+	      | WEQD LPAR namelist RPAR agent agent
+		(Cmd.WeqD(agent1,agent2,namelist))
+	      | HELP helpcmd
+		(Cmd.Help(helpcmd))
+	      | HELP (Cmd.Help(Cmd.HelpC.NULL))
+	      | QUERY
+		(Cmd.Help(Cmd.HelpC.NULL))
+	      | QUIT
+		(Cmd.Quit)
+	      | FAGENT fagdef
+		(Cmd.FAgent(fagdef))
+	      | FEQ fagent fagent
+		(Cmd.Feq(fagent1,fagent2))
+	      | FTRANS fagent
+		(Cmd.FTransitions(fagent))
+	      | FWEQ fagent fagent
+		(Cmd.Fweq(fagent1,fagent2))
+	      | FWTRANS fagent
+		(Cmd.FWTransitions(fagent))
+
+(* Fusion agent *)
+
+fagdef:		  idifier EQUALS fagent
+		  (idifier,[], fagent)
+		| idifier LPAR fnamelist RPAR EQUALS fagent
+		  (idifier, fnamelist, fagent)
+
+fagent:		NIL
+		  (FA.Nil)
+		| faction DOT fagent
+		  (FA.Prefix (faction, fagent))
+		| fprefix
+		  (fprefix)
+		| LBRACK feqlist RBRACK fagent %prec RBRACK
+		  (FA.Match(feqlist,fagent))
+		| fagent PLUS fagent
+		  (FA.Sum (fflat_sum [fagent1, fagent2]))
+		| idifier	%prec LPAR
+		  (FA.AgentID (idifier))
+		| LPAR fnamelist RPAR fagent %prec LBRACK
+		  (Lib.fold (fn (n,proc) => FA.Scope(n,proc)) fnamelist fagent)
+		| idifier LESSTHAN fnamelist GREATERTHAN
+		  (FA.Applic(FA.AgentID(idifier),fnamelist))
+		| idifier LPAR fnamelist RPAR
+		(* for bkwds compatibility *)
+		  (FA.Applic(FA.AgentID(idifier),fnamelist))
+		| LPAR fagent RPAR
+		  (fagent)
+		| fagent PAR fagent
+		  (FA.Parallel (fflat_par [fagent1, fagent2]))
+
+(* t is not tau anymore *)
+fname:		  TAU
+		  (N.mkname(TAU))
+		| name
+		  (name)
+
+fnamelist:	  fname
+		  ([fname])
+		| fnamelist COMMA fname
+		  (fnamelist @ [fname])
+
+
+faction: 	  ONE
+		  (FAct.Fusion([]))
+		| LBRACE nameeqlist RBRACE
+		  (FAct.Fusion(nameeqlist))
+		| fname
+		  (FAct.Input(fname))
+		| QUOTE fname
+		  (FAct.Output(fname))
+
+fprefix:	  fname LPAR fnamelist RPAR DOT fagent
+		  (FA.Prefix(FAct.Input(fname), Lib.fold (fn (n,proc) => FA.Scope(n,proc)) fnamelist (FA.Conc(fnamelist,fagent))))
+		| fname LESSTHAN fnamelist GREATERTHAN DOT fagent
+		  (FA.Prefix(FAct.Input(fname),FA.Conc(fnamelist,fagent)))
+		| QUOTE fname LPAR fnamelist RPAR DOT fagent
+		  (FA.Prefix(FAct.Output(fname), Lib.fold (fn (n,proc) => FA.Scope(n,proc)) fnamelist (FA.Conc(fnamelist,fagent))))
+		| QUOTE fname LESSTHAN fnamelist GREATERTHAN DOT fagent
+		  (FA.Prefix(FAct.Output(fname),FA.Conc(fnamelist,fagent)))
+
+feqlist:	  fname EQUALS fname
+		  ([(fname1,fname2)],[])
+(* 		| fname SHARP fname *)
+(* 		  ([],[(fname1,fname2)]) *)
+		| feqlist COMMA fname EQUALS fname
+		  (((fname1,fname2)::(#1(feqlist)),#2(feqlist)))
+(* 		| feqlist COMMA fname SHARP fname *)
+(* 		  ((#1(feqlist),(fname1,fname2)::(#2(feqlist)))) *)
+
+nameeqlist:	  fname EQUALS fname
+		  ([(fname1,fname2)])
+		| nameeqlist COMMA fname EQUALS fname
+		  ((fname1,fname2)::nameeqlist)

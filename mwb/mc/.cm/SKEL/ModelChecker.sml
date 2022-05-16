@@ -1,0 +1,2 @@
+Skeleton 5
+ae"ModelChecker"i2aä¢Sequent"gp1c"SEQUENT"aä¢AgentSubSem"gp1c"AGENTSUBSEM"jh6aä¢S"gp1ÿCaä¢V"jh1aÿçğ±ÿgp1e"VisitedTable"aä¢AS"gp1ÿ+egp1ÿeÿ#f9d"D"d"F"d"A"d"C"Cÿd"Flags"ÿ<d"Lib"d"McList"NNgp1c"MODELCHECKER"

@@ -1,0 +1,211 @@
+functor deBruijnName() : NAME =
+struct
+    datatype name = Name of int * string * int
+		   |Variable of int * int	
+    fun mkname(s,i) = Name(i,s,0)
+    fun mkparameter(s, i, p)= Name(i,s,p)
+    fun set_param(Name(i,s,_), param) = Name(i, s, param) 
+      | set_param(Variable(s,_), param) = Variable(s,param)       
+   
+  fun eq(Name (i,_,_),Name (j,_,_)) = i=j
+      | eq(Variable(i,_),Variable(j,_)) = i=j
+      | eq(Variable(_,_), Name(_,_,_)) = false
+      | eq(Name(_,_,_), Variable(_,_)) = false
+ 
+    fun curry_eq (Name (i,_,_)) (Name (j,_,_)) = i=j
+      | curry_eq (Variable(i,_)) (Variable(j,_)) = i=j
+      | curry_eq (Variable(_,_)) (Name(_,_,_)) = false
+      | curry_eq (Name(_,_,_)) (Variable(_,_)) = false
+ 
+    fun a_eq(Name (i,_,x),Name (j,_,y)) = x<=y orelse i=j
+      | a_eq(Variable(i,x),Variable(j,y)) = x<=y orelse i=j
+      | a_eq(Variable(_,_), Name(_,_,_)) = true
+      | a_eq(Name(_,_,_), Variable(_,_)) = true
+
+
+    fun le(Name (i,_,_),Name (j,_,_)) = i<=j
+      | le(Variable(i,_),Variable(j,_)) = i<=j
+      | le(Variable(_,_), Name(_,_,_)) = false
+      | le(Name(_,_,_), Variable(_,_)) = false
+ 
+   (* fun mkstr(Name (i,s,_)) = if not (Flags.trace()) then "_"^(makestring i)
+			    else "_"^(makestring i)^"("^s^")" |
+        mkstr(Variable(i,s)) =  "V"^(makestring s) *)
+
+   fun mkstr(Name (i,s,_)) = s^"("^(Lib.mkstrint i)^")" |
+        mkstr(Variable(i,s)) =  "V"^(Lib.mkstrint s) 
+
+    fun makstr(Name (i,s,_),nl) =
+	(if i >= length nl
+	    then print("**Name("^(Lib.mkstrint i)^","^s^") - index outside ["^(Lib.mapconcat (fn x=>x) nl ",")^"]\n") else ();
+	Lib.nth(nl,i))
+(*	(if size s > 0 then s
+	 else if i > lvl then "_"
+	      else Lib.nth(nl,lvl-i))^(if lvl-i = 0 then ""
+				   else Lib.mkstrint (lvl-i)) *)
+    fun pretty_name(Name (i,s,P)) = s
+      | pretty_name(Variable(i,p))= Lib.mkstrint i
+
+    val Zero = Name (0,"",0)
+    fun zerop(Name (i,_,_)) = i=0
+      | zerop(Variable(i,s)) = i=0
+
+    fun pred(Name (i,s,p)) = Name(i-1,s,p)
+      | pred(Variable(i,p)) = Variable(i-1,p)
+
+    fun succ(Name (i,s,p)) = Name(i+1,s,p)
+
+    fun is_free (Name (i,_,_),lvl) = i >= lvl
+      | is_free (Variable(i,_), lvl)= i>lvl
+
+    fun free (Name (i,s,p),lvl) = Name(i-lvl,s,p)
+      | free (Variable(i,p), lvl) = Variable(i-lvl,p)
+
+    fun increment(Name (i,s,p),n) = Name(i+n,s,p)
+      | increment(Variable(i,p),n) = Variable(i+n,p)
+
+    fun code(Name (n,_,_)) = n
+      | code(Variable(n,_)) = n
+
+    (* hmm *)
+    fun substitute (e,v,n) = if eq(e,n) then v else n
+	(* raise Lib.disaster "foo!" *)
+
+    fun remove_var([]) = []
+      | remove_var(Name(x,y,z)::rest) = 
+	Name(x,y,z)::remove_var(rest)
+      | remove_var(Variable(_,_)::rest) = remove_var(rest)
+
+
+
+    fun newNameNotin(set) =
+	let fun find [] = Zero
+	      | find [(Name (n,_,p))] = Name (n+1,"",p)
+	      | find ((Name (n,_,_))::(R as ((Name (m,_,_))::rest))) =
+		if n = m-1 orelse n = m (* sigh, duplicate alert *)
+		    then find R
+		else Name(n+1,"",0)
+	in
+	    find (Lib.sort le (remove_var(set)))
+	end
+    val next = newNameNotin
+
+    fun n_newNamesNotin(n,set) =
+	let fun maknames (from,upto) =
+	    if upto < from then raise Lib.disaster("make "^(Lib.mkstrint(upto-from))^" names - impossible!")
+	    else if from = upto then [Name (from,"",0)]
+		 else (Name (from,"",0))::(maknames (from+1,upto))
+	    fun mknames(nst,min) =
+		maknames(min,min+nst-1)
+	    fun min(x,y) = if x < y then x else y
+	    fun find 0 _ _ = []
+	      | find n i [] = mknames(n,i)
+	      | find n m ((Name (i,_,_))::R) =
+(*		(if Flags.trace() then print("find n="^(Lib.mkstrint n)^" m="^(Lib.mkstrint m)^" i="^(Lib.mkstrint i)^"\n") else (); *)
+		if m = i then find n (i+1) R
+		else
+		    let val j = min(n,i-m)
+(*			val _ = if Flags.trace() then print(" j = "^(Lib.mkstrint j)^"\n") else ()  *)
+		    in
+			(mknames(j,m))@(find (n-j) (i+1) R)
+		    end
+(*		) *)
+	in
+(*	    (if Flags.trace() then print("n_new("^(Lib.mkstrint n)^",["^(Lib.mapconcat mkstr set ",")^"])\n") else (); *)
+	    rev (find n 0 (Lib.sort le (Lib.del_dups eq set)))
+(*	    ) *)
+	end
+
+    fun fill ([]) = []
+      | fill (seq) =
+	let val sseq = rev (Lib.sort le (Lib.del_dups eq seq))
+	   fun mknames (from,downto) =
+	       if from < downto then []
+	       else if from = downto then [Name (from,"",0)]
+	       else (Name(from,"",0))::(mknames (from-1,downto))
+	   fun code(Name (n,_,_)) = n
+	   fun fll ([]) = []
+	     | fll ([N as Name(i,is,p)]) = N::(mknames(i-1,0))
+             | fll ([V as Variable(x,y)]) = V::(mknames(x,y))
+	     | fll ((n as Name(i,is,p))::(R0 as ((m as Name(j,js,q))::R))) =
+	       if i = j+1 then n::(fll R0)
+	       else n::(fll ((Name (i-1,"",0))::R0))
+	     | fll ((n as Name(i,is,p))::(R0 as ((m as Variable(j,js))::R))) =
+	        n::Variable(j,js)::(fll R)
+             | fll ((n as Variable(i,is))::(R0 as ((m as Name(j,js,q))::R))) =
+	        n::(fll R0)
+	     | fll ((n as Variable(i,is))::(m as Variable(j,js))::R) =
+		n::m::(fll R)
+	in
+	(* mknames (code (hd sseq),0)*)
+	    fll sseq
+	end
+
+fun is_variable(Variable(_,_)) = true
+  | is_variable(Name(_,_,_)) = false
+
+
+
+fun is_name(Name(_,_,_)) = true
+  | is_name(Variable(_,_))= false
+ 
+    fun beta_reduce (Name (i,is,p)) (args,lc) =
+	if i < lc then Name(i,is,p)		(* N is bound *)
+	else if lc <= i andalso i < lc+(length args) then
+	    (* N is what we're looking for *)
+            if is_variable(Lib.nth(args, (length args)-(i-lc)-1)) then
+	(*	let val (Variable (k,x)) =*)  Lib.nth(args,(length args)-(i-lc)-1)
+		(*	in 
+		Variable(k+lc,p)	
+	    end*)
+            else
+	    let val (Name (k,ks,x)) = Lib.nth(args,(length args)-(i-lc)-1)
+	    in (* k >= adjustlimit (#lambda in ArgJ) *)
+		Name(k+lc,if size ks > 0 then ks else is,0)	(* Adjust for lc *)
+	    end
+	else (* i >= lc+Nargs *)
+	    Name(i-(length args),is,p)	(* N is bound at outer lvl ("free") *)
+      | beta_reduce (Variable (i,p)) (args,lc) =
+	if i < lc then Variable(i,p)		(* V is bound *)
+	else if lc <= i andalso i < lc+(length args) then
+	    (* V is what we're looking for *)
+		if is_name(Lib.nth(args,(length args)-(i-lc)-1))
+			then
+		 let val (Name (k,ks,x)) = Lib.nth(args,(length args)-(i-lc)-1)
+			in
+			Name(k+lc,ks,p)	
+		 end
+	else 
+	    let val (Variable (k,x)) = Lib.nth(args,(length args)-(i-lc)-1)
+	    in (* k >= adjustlimit (#lambda in ArgJ) *)
+		Variable(k+lc,p)	(* Adjust for lc *)
+	    end
+	else (* i >= lc+Nargs *)
+	    Variable(i-(length args),p)	(* V is bound at outer lvl ("free") *)
+
+
+fun index_of(Variable(i,p))= i
+  | index_of(Name(_,_,i)) = i
+
+
+fun is_name(Name(_,_,_)) = true
+  | is_name(Variable(_,_))= false
+ 
+fun topindex([], ti) = ti 
+  | topindex(n::nlist, ti)=
+    let
+       val current = index_of(n)      
+    in 
+       topindex(nlist, if (current>ti) then current else ti)   
+    end
+
+fun mkvariable(varlist) =
+let
+   val index = topindex(varlist,0) + 1
+in
+  Variable(index,0) 
+end
+
+val newVarNotin = mkvariable
+
+end

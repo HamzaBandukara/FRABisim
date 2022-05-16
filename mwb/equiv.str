@@ -1,0 +1,194 @@
+(* Equivalence relation - based on the test structure by Faron *)
+
+functor Equiv(structure N : NAME;
+	     structure SL : SORTEDLIST) : EQUIV =
+struct
+    structure N = N
+	
+    type equiv = N.name list list
+	
+    val EmptyE = []
+	
+    (* returns a sorted list of the names in a equiv *)
+    fun names(T) =
+	Lib.fold (fn (x,l)=> SL.merge N.le true (x,l)) T []
+    val domain = names
+
+    fun hashval [] = 0
+      | hashval (h::t) =
+	Lib.xorb(Lib.fold (fn (n,s)=>s+(N.code n)) h 0,
+		  hashval t)
+
+    fun is_empty([]) = true
+      | is_empty _ = false
+
+    fun free_names(t,lvl) =
+	Lib.fold (fn (tst,l)=>
+	      Lib.fold (fn (n,l)=>
+		    if N.is_free(n,lvl) then
+			(N.free(n,lvl))::l else l)
+	      tst l) t []
+(* 	Lib.mapcan (fn tst =>                                         *)
+(* 		    map (fn n=> N.free(n,lvl))                        *)
+(* 		    (Lib.filter (fn n => N.is_free(n,lvl)) tst)) t    *)
+	
+    fun inc [] = []
+      | inc (h::t) = (map N.succ h)::(inc t)
+
+    fun mkstr([]) = "[Empty]"
+      | mkstr(T) =
+	let fun mkstr_eq(L) = (Lib.mapconcat N.mkstr L "=")
+	in Lib.mapconcat mkstr_eq T ","
+	end
+    
+    fun makstr([],_) = "[Empty]"
+      | makstr(T,nl) =
+	let fun mkstr_eq(L) = (Lib.mapconcat (fn n=> (N.makstr(n,nl)))
+			       L "=")
+	in Lib.mapconcat mkstr_eq T ","
+	end
+    
+    fun equate (n1,n2) =
+	if N.le(n1,n2)			(* Keep them ordered *)
+	    then if N.le(n2,n1) then EmptyE
+		 else [[n1,n2]]
+	else [[n2,n1]]
+	    
+    fun hd (h::t) = h
+    fun tl [] = []
+      | tl (h::t) = t
+	
+    (* Insert an equivalence class in an equivalence *)
+    fun insert L [] = [L]
+      | insert [] L = L
+      | insert L (h::t) =
+	if N.le(hd L,hd h) then L::h::t
+	else h::(insert L t)
+
+    fun intersects _ [] = false
+      | intersects [] _ = false
+      | intersects (a::s) (b::t) =
+	if N.le(a,b) then
+	    if N.le(b,a) then true
+	    else intersects s (b::t)
+	else intersects (a::s) t
+	    
+    fun split L [] = ([],[])
+      | split L (h::t) =
+	let val (f1,f2) = split L t
+	in if intersects L h then (h::f1,f2)
+	   else (f1,h::f2)
+	end
+    
+    fun merge P [] = P
+      | merge [] Q = Q
+      | merge (a::s) (b::t) =
+	if N.le(a,b) then
+	    if N.le(b,a) then a::(merge s t)
+	    else a::(merge s (b::t))
+	else b::(merge (a::s) t)
+	    
+    fun bigmerge [] = []
+      | bigmerge [L] = L
+      | bigmerge (a::b::t) = bigmerge((merge a b)::t)
+	
+    (* Join two equivalences *)
+    fun join (P,[]) = P
+      | join (P,h::t) =
+	let val (f1,f2) = split h P
+	in join (insert (bigmerge(h::f1)) f2,t)
+	end
+
+    (* removes mention of a name *)
+    fun minus ([],n) = []
+      | minus (h::t,n) =
+	if SL.member N.le (n,h) then	(* in this class? *)
+	    if null(tl (tl h)) then t	(* only one left in class, remove *)
+	    else (SL.remove (fn x=>x) N.le (n,h))::t
+	else h::(minus (t,n))
+
+    fun restrict_to ([],nl) = []
+      | restrict_to (h::t,nl) =
+	let val h1 = Lib.fold (fn (x,l)=>
+			   if Lib.member N.eq (x,nl) then x::l
+			   else l) h []
+	in
+	    if null h1 then restrict_to (t,nl)
+	    else join([h1],restrict_to (t,nl))
+	end
+
+    (* remove eqrel e' from e *)
+    fun remove (e,e') =
+	Lib.fold (fn (e'c,r)=>
+	      let val ec' =
+		  Lib.fold (fn (ec,r)=>
+			let val c = (SL.minus (fn x=>x) N.le (ec,e'c))
+			in
+			    if null c then r
+			    else join([c],r)
+			end)
+		  e EmptyE
+	      in
+		  if null ec' then r
+		  else join(ec',r)
+	      end)
+	e' EmptyE
+	
+    (* Does one cover the other? *)
+    fun implies (P,Q) =
+	let fun subset ([],_) = true
+	      | subset (_,[]) = false
+	      | subset (n1::t1,n2::t2) =
+		if N.le(n1,n2) then
+		    N.le(n2,n1) andalso subset(t1,t2)
+		else subset(n1::t1,t2)
+		    
+	in Lib.forall (fn h => Lib.exists (fn x => subset(h,x)) P) Q
+	end
+    
+    fun eq (t1,t2) = 
+	Lib.eq (Lib.eq N.eq) (t1,t2)
+
+    fun substitute (t,subs) =
+	let val sb = SL.sort (fn ((_,x),(_,y))=>N.le(x,y)) true subs
+	    fun doclass x = SL.sort N.le true
+		(map (fn a=>
+		      (fn (y,_)=>y)
+		      (SL.retrieve (fn (_,x)=>x) N.le (a,sb))
+		      handle SL.Retrieve => a) x)
+	in
+	    Lib.fold (fn (cl,e) =>
+		  let val c = doclass cl
+		  in
+		      if length c < 2 then e
+		      else join ([c],e)
+		  end) t EmptyE
+	end
+
+    (* return a list of pairs (a,b) to substitute a for b *)
+    fun sigma [] = []
+      | sigma((h::t)::r) =
+	(map (fn x => (h,x)) t)@(sigma r) (* Pick the first from each class *)
+
+    fun representative ([],n) =
+	raise Lib.disaster("no representative for "^(N.mkstr n))
+      | representative (h::t,n) =
+	if SL.member N.le (n,h) then
+	    if N.eq(n,hd(h)) then
+		hd(tl(h))
+	    else
+		hd(h)
+	else
+	    representative (t,n)
+
+    fun beta_reduce t E =
+	(Lib.fold (fn ((hd::tl),r) =>
+	       let val h = N.beta_reduce hd E
+	       in
+		   join(Lib.fold (fn (n,tt) =>
+			      join(equate(h,N.beta_reduce n E),tt))
+			tl EmptyE,
+			r)
+	       end) t EmptyE)
+	
+end

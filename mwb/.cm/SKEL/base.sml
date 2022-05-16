@@ -1,0 +1,3 @@
+Skeleton 5
+d5CaгўSTREAM"и0aгўLR_TABLE"яaгўTOKEN"h1бдўLrTable"зр±яaгўLR_PARSER"h3бдўStream"зр±яя(бдўToken"зр±яaгўLEXER"и±бдўUserDeclarations"яCaгўARG_LEXER"яЃ/aгўPARSER_DATA"h4я(яЃad"Actions"яad"EC"яaгўPARSER"иІяЃяЃaгўARG_PARSER"яѓae"Join"i4aдўLex"gp1яЃ'бдўParserData"зр±я‚бдўLrParser"зр±я9жія„яѓ1яѓ>jиІбяЃзрІяѓ>яЃбяЃзрІя„яЃgp1яѓCae"JoinWithArg"i4aяѓ1gp1я‚	яѓ=я„я„"jя„.gp1яѓaя)jh2c2egp±дўArray"egp1дўList"fя†
+я3aяЃjяяЃaгўFIFO"яaя„jh7бя)зр±я)aяЃgp1яЃCaяЃjh1я†?яЃ!eя‡egp1яЃf5Cя†я)яЃd"Int"d"TextIO"Nad"Fifo"jяgp1я†/Nя„N

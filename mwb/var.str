@@ -1,0 +1,12 @@
+functor Var () : VAR =
+struct
+   datatype var = Var of string
+
+   val mkvar = Var
+
+   fun mkstr (Var s) = s
+
+   fun eq (Var s,Var t) = (s=t)
+   fun le (Var s,Var t) = (s<=t)
+end
+

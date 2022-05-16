@@ -1,0 +1,139 @@
+(* this is based on the Test code of monadic MWB *)
+functor Eqrel(structure SL : SORTEDLIST) : EQREL =
+struct
+	
+    type 'a eqrel = {
+		     le : 'a * 'a -> bool,
+		     mkstr : 'a -> string,
+		     rel : 'a list list
+		     }
+	
+    (* returns a sorted list of the free names in a test *)
+    fun elements({le,rel,...}:'a eqrel) =
+	let fun collapse [] = []
+	      | collapse (h::t) = h@(collapse t)
+	in
+	    SL.sort le true (collapse rel)
+	end
+	
+    fun classes ({rel,...}:'a eqrel) =
+	rel
+
+    fun class_of (n,{rel,le,...}:'a eqrel) =
+	SL.find (SL.member le) (n,rel)
+
+    fun mkstr({rel,mkstr=mks,...}: 'a eqrel) =
+	case rel of
+	    [] => "[Empty]"
+	  | _ =>
+		let fun mkstr_eq(L) = (Lib.mapconcat mks L "=")
+		in
+		    "[" ^ (Lib.mapconcat mkstr_eq rel ",") ^ "]"
+		end
+    
+    fun isEmpty (le,mks) =
+	{mkstr = mks, le=le, rel = []}
+
+    fun match (le,mks) (n1,n2) =
+	if le(n1,n2)
+	    then if le(n2,n1) then {le=le,mkstr=mks,rel=[[n1]]}
+		 else {mkstr=mks,le=le,rel=[[n1,n2]]}
+	else {mkstr=mks,le=le,rel=[[n2,n1]]}
+	    
+    fun hd (h::t) = h
+    fun tl (h::t) = t
+	
+    fun insert le l1 l2 =
+	let fun ins L [] = [L]
+	      | ins [] L = L
+	      | ins L (h::t) =
+		if le(hd L,hd h) then L::h::t
+		else h::(ins L t)
+	in ins l1 l2
+	end
+	    
+    fun intersects le l1 l2 =
+	let fun inters _ [] = false
+	      | inters [] _ = false
+	      | inters (a::s) (b::t) =
+		if le(a,b) then
+		    if le(b,a) then true
+		    else inters s (b::t)
+		else inters (a::s) t
+	in inters l1 l2
+	end
+	    
+    fun split le l1 l2 =
+	let fun splitt L [] = ([],[])
+	      | splitt L (h::t) =
+		let val (f1,f2) = splitt L t
+		in if intersects le L h then (h::f1,f2)
+		   else (f1,h::f2)
+		end
+	in splitt l1 l2
+	end
+    
+    fun merge le l1 l2 =
+	let fun merg P [] = P
+	      | merg [] Q = Q
+	      | merg (a::s) (b::t) =
+		if le(a,b) then
+		    if le(b,a) then a::(merg s t)
+		    else a::(merg s (b::t))
+		else b::(merg (a::s) t)
+	in
+	    merg l1 l2
+	end
+	    
+    fun bigmerge le L =
+	let fun bigmerg [] = []
+	      | bigmerg [L] = L
+	      | bigmerg (a::b::t) = bigmerg((merge le a b)::t)
+	in bigmerg L
+	end
+	
+    fun join ({le,mkstr,rel=r1},{rel=r2,...}:'a eqrel) =
+	let fun join (P,[]) = P
+	      | join (P,h::t) =
+		let val (f1,f2) = split le h P
+		in join (insert le (bigmerge le (h::f1)) f2,t)
+		end
+	in
+	    {le=le,mkstr=mkstr,rel=(join (r1,r2))}
+	end
+    
+    fun implies ({le,rel=r1,...}:'a eqrel,{rel=r2,...}:'a eqrel) =
+	let fun implies (P,Q) =
+	    let fun subset ([],_) = true
+		  | subset (_,[]) = false
+		  | subset (n1::t1,n2::t2) =
+		    if le(n1,n2) then
+			le(n2,n1) andalso subset(t1,t2)
+		    else subset(n1::t1,t2)
+			
+	    in Lib.forall (fn h => Lib.exists (fn x => subset(h,x)) P) Q
+	    end
+	in
+	    implies (r1,r2)
+	end
+    
+    fun eq ({rel=t1,le,...}:'a eqrel,{rel=t2,...}:'a eqrel) = 
+	let fun eq (a,b) = le(a,b) andalso le (b,a)
+	in
+	    Lib.eq (Lib.eq eq) (t1,t2)
+	end
+
+    fun substitute (e, v, R as {rel=t,le,mkstr}) =
+	let val (s,t') = split le [v] t	(* s is the subtest where v occurs, t' the others *)
+	in
+	    if null s then R
+	    else let val (a::r) = SL.remove (fn x=>x) le (v,hd s)
+		 in
+		     join (join (match (le,mkstr) (e,a),
+				 {le=le,mkstr=mkstr,rel=if null r then []
+							else [r]}),
+			   {le=le,mkstr=mkstr,rel=t'})
+		 end
+	end
+	
+end

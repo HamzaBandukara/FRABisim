@@ -1,0 +1,2 @@
+Skeleton 5
+ae"Prover"i7aä¢Sequent"gp1c"SEQ"aä¢Agent"gp1c"McAGENT"Caä¢Formula"gp1c"PFORMULA"aä¢Nameequation"gp1c"NAMEEQUATION"aä¢Bool"gp1c"COND"aä¢Name"gp1c"NAME"aä¢Env"gp1c"ENV"Caä¢AgentSubSemantics"gp1c"AGENTSUBSEM"aä¢NameSubstitution"gp1c"NAMESUBSTITUTION"aä¢Act"gp1c"ACTION"aä¢Constant"gp1c"CONSTANT"f3d"List"d"Flags"d"Lib"Njh6ad"S"gp1ÿCad"F"gp1ÿ8ad"A"gp1ÿ!ad"N"gp1ÿ‚ad"NE"gp1ÿad"E"gp1ÿ‚Cad"AS"gp1ÿ‚(ad"NS"gp1ÿƒad"B"gp1ÿ3ad"ACT"gp1ÿƒ8ad"CST"gp1ÿ„Ngp1c"PROVER"

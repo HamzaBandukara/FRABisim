@@ -1,0 +1,142 @@
+functor SortTest(structure N : SoNAME;
+	     structure SL : SORTEDLIST) : SoTEST =
+struct
+    structure N = N
+	
+    datatype test = T of (N.name list list) * (N.name * N.name) list | FF
+	
+    val True = T([],[])
+	
+	
+    fun mkstr(T([],[])) = "[True]"
+      | mkstr(T(eq,neq)) =
+       "["
+       ^(Lib.mapconcat (fn cl=>(Lib.mapconcat N.mkstr cl "=")) eq ",")
+       ^(if null eq then "" else if null neq then "" else ",")
+       ^(Lib.mapconcat (fn (a,b)=>(N.mkstr a)^"#"^(N.mkstr b)) neq ",")
+       ^"]"
+
+    and eq (T(e1,n1),T(e2,n2)) =
+	Lib.eq (Lib.eq N.eq) (e1,e2)
+	andalso
+	Lib.eq d_eq ((SL.sort d_le true n1),(SL.sort d_le true n2))
+    and d_le ((a,c),(b,d)) =		(* a<=b & (a<b | c<=d) *)
+	N.le(a,b) andalso (not(N.le(b,a)) orelse N.le(c,d))
+    and d_eq ((a,c),(b,d)) = N.eq(a,b) andalso N.eq(c,d)
+ 
+    fun match (n1,n2) =
+	if N.le(n1,n2)
+	    then if N.le(n2,n1) then True
+		 else T([[n1,n2]],[])
+	else T([[n2,n1]],[])
+
+    fun mismatch (n1,n2) =
+	if N.le(n1,n2)			(* Keep them ordered *)
+	    then if N.le(n2,n1) then FF
+		 else T([],[(n1,n2)])
+	else T([],[(n2,n1)])
+	    
+    fun hd (h::t) = h
+    fun tl (h::t) = t
+	
+    fun insert L [] = [L]
+      | insert [] L = L
+      | insert L (h::t) =
+	if N.le(hd L,hd h) then L::h::t
+	else h::(insert L t)
+	    
+    fun intersects _ [] = false
+      | intersects [] _ = false
+      | intersects (a::s) (b::t) =
+	if N.le(a,b) then
+	    if N.le(b,a) then true
+	    else intersects s (b::t)
+	else intersects (a::s) t
+	    
+    fun split L [] = ([],[])
+      | split L (h::t) =
+	let val (f1,f2) = split L t
+	in if intersects L h then (h::f1,f2)
+	   else (f1,h::f2)
+	end
+    
+    fun merge P [] = P
+      | merge [] Q = Q
+      | merge (a::s) (b::t) =
+	if N.le(a,b) then
+	    if N.le(b,a) then a::(merge s t)
+	    else a::(merge s (b::t))
+	else b::(merge (a::s) t)
+	    
+    fun bigmerge [] = []
+      | bigmerge [L] = L
+      | bigmerge (a::b::t) = bigmerge((merge a b)::t)
+	
+    fun implies (P,Q) =
+	let fun subset ([],_) = true
+	      | subset (_,[]) = false
+	      | subset (n1::t1,n2::t2) =
+		if N.le(n1,n2) then
+		    N.le(n2,n1) andalso subset(t1,t2)
+		else subset(n1::t1,t2)
+		    
+	in Lib.forall (fn h => Lib.exists (fn x => subset(h,x)) P) Q
+	end
+
+    fun join (FF,_) = FF
+      | join (_,FF) = FF
+      | join (T(e1,d1),T(e2,d2)) =
+	let fun oin (P,[]) = P
+	      | oin (P,h::t) =
+		let val (f1,f2) = split h P
+		in oin (insert (bigmerge(h::f1)) f2,t)
+		end
+	    val djoin = SL.merge d_le true
+	    val ej = oin(e1,e2)
+	    val dj = djoin(d1,d2)
+	in
+	    if Lib.exists (fn (a,b)=> implies(ej,[[a,b]])) dj then FF
+	    else T(ej,dj)
+	end
+	
+    fun substitute (e,v,FF) = FF
+      | substitute (e, v, T(t,q)) =
+	let val (s,t') = split [v] t	(* s is the subtest where v occurs, t' the others *)
+	    val (d,dr) = Lib.fold (fn ((a,b),(ri,ro)) =>
+			       if N.eq(v,a) then ((a,b)::ri,ro)
+			       else if N.eq(v,b) then ((b,a)::ri,ro)
+			       else (ri,(a,b)::ro)) q ([],[])
+	    fun oin (P,[]) = P
+	      | oin (P,h::t) =
+		let val (f1,f2) = split h P
+		in oin (insert (bigmerge(h::f1)) f2,t)
+		end
+	    fun pair (a,b) = if N.le(a,b) then [(a,b)] else [(b,a)]
+	    fun atch (a,b) = if N.le(a,b) then [[a,b]] else [[b,a]]
+	    val djoin = SL.merge d_le true
+	in
+	    if null s then
+		if null d then T(t,q)
+		else T(t,Lib.fold (fn ((x,y),dd)=>
+			       djoin(pair(e,y),dd)) dr [])
+	    else let val (a::r) = SL.remove (fn x=>x) N.le (v,hd s)
+		in
+		    T(oin(oin(atch(e,a),if null r then [] else [r]),t'),
+		      q)
+		 end
+	end
+
+    (* return a list of pairs (a,b) to substitute a for b *)
+    fun sigma (FF) = []
+      | sigma (T(e,_)) =
+	let fun sigm [] = []
+	      | sigm ((h::t)::r) =
+		(map (fn x => (h,x)) t)@(sigm r)
+	in
+	    sigm e
+	end
+
+    fun names(FF) = []
+      | names (T(e,d)) = 
+	(Lib.mapcan (fn x=>x) e)@(Lib.fold (fn ((a,b),l)=>a::b::l) d [])
+end

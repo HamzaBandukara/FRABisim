@@ -1,0 +1,18 @@
+To build MWB using SML/NJ 110.55 or 110.59,
+1) Run "sml -m sources.cm saveit.sml".
+
+To build MWB using SML/NJ 110.0.7, 
+0) Edit sources.cm by DELETING the two lines
+	str : suffix (sml)
+	$/basis.cm
+   just after the initial "Group is" line.
+1) start sml-cm
+2) CM.recompile();
+3) CM.sa("loadit.sml");
+4) exit sml-cm
+5) start sml
+6) use "buildit.sml";
+
+
+Then use mwb.sh to start it!
+

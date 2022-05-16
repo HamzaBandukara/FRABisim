@@ -1,0 +1,2 @@
+Skeleton 5
+ae"PILrValsFun"i7aдҐToken"gp1c"TOKEN"aдҐAgent"gp1c"SAGENT"CaдҐProp"gp1c"SPROPVAR"aдҐF"gp1c"SFORMULA"aдҐSFAgent"gp1c"SFAGENT"aдҐCommands"gp1c"COMMANDS"f±€Njh2ad"ParserData"h7aдҐHeader"h6aдҐA"gp1€&CaдҐAct"gp2€В;€ГaдҐN"gp2€Г€ГaдҐCmd"gp1€Б=aдҐFA"gp1€Б%aдҐFAct"gp2€Г1€ГNaдҐLrTable"gp2€€ДCa€gp€Вbезр±€Дf4d"Array"d"Char"€Дd"String"bезр±€В/d2f7€Б€В;C€Г€Г€Г$€Г=€Г1NaдҐMlyValue"и0ad"EC"h2€Д+b€Еж±€Е3ad"Actions"h2b€Еf6€БC€В;€Г€Д€Г€Е3C€Г$€Г=€Г1€<d"Lib"N€ЖNad"Tokens"j€Е>gp1c"PI_TOKENS"gp1c"PI_LRVALS"
