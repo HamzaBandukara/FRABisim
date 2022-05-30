@@ -1,8 +1,0 @@
-TESTING:  q1 set() q1
-TESTING:  q2 {('1', '1')} q2
-IS_MEMBER:  q2 {('1', '1')} q2
-TESTING ~:  q1 set() q1
-TESTING:  q2 {('1', '1')} q2
-IS_MEMBER:  q2 {('1', '1')} q2
-0.000998
-True

@@ -8,6 +8,7 @@ from pibisim import pi_bisim as fwd_pi
 from RAStack.Combiner import combiner
 from DataStructures.RA_SF_A import RegisterAutomata
 import sys
+import sympy
 
 def alter_states(fra):
     states, initial, registers, transitions, finals = re.findall("{(.*?)}", fra)
