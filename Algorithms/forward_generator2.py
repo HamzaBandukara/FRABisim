@@ -35,10 +35,6 @@ def chk_tags(RA,q1,q2):
 class WrongAssumption(Exception):
     pass
 
-def ra_bisim(RA,q1,q2):
-    return forward(RA,q1,q2,set())
-
-
 def bisim_ok(G, RA, q1, sigma, q2, not_bisim):
     global STATS_CALLS
     STATS_CALLS += 1
