@@ -1,0 +1,1 @@
+{q0,q1,q2,q3,q4}{q0}{(q0)(q1,1)(q2,1,2)(q3,1,2,3)(q4,1,2,3,4)}{(q0,push,1,L,q1)(q1,pop,1,K,q0)(q1,push,2,L,q2)(q2,pop,2,K,q1)(q2,push,3,L,q3)(q3,pop,3,K,q2)(q3,push,4,L,q4)(q4,pop,4,K,q3)}{}

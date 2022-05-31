@@ -1,0 +1,8 @@
+AL(a) = ((a(b).[b#a]a<a>.AM(a,b)))
+AM(a,b) = (a<b>.AM(a,b)) + ((a(c).[c#a][c#b]a<a>.AN(a,b,c)))
+AN(a,b,c) = (a<b>.AN(a,b,c)) + (a<c>.AN(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.AO(a,b,c,d)))
+AO(a,b,c,d) = (a<b>.AO(a,b,c,d)) + (a<c>.AO(a,b,c,d)) + (a<d>.AO(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.AP(a,b,c,d,e)))
+AP(a,b,c,d,e) = (a<b>.AP(a,b,c,d,e)) + (a<c>.AP(a,b,c,d,e)) + (a<d>.AP(a,b,c,d,e)) + (a<e>.AP(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.AQ(a,b,c,d,e,f)))
+AQ(a,b,c,d,e,f) = (a<b>.AQ(a,b,c,d,e,f)) + (a<c>.AQ(a,b,c,d,e,f)) + (a<d>.AQ(a,b,c,d,e,f)) + (a<e>.AQ(a,b,c,d,e,f)) + (a<f>.AQ(a,b,c,d,e,f)) + ((a(g).[g#a][g#b][g#c][g#d][g#e][g#f]a<a>.AR(a,b,c,d,e,f,g)))
+AR(a,b,c,d,e,f,g) = (a<b>.AR(a,b,c,d,e,f,g)) + (a<c>.AR(a,b,c,d,e,f,g)) + (a<d>.AR(a,b,c,d,e,f,g)) + (a<e>.AR(a,b,c,d,e,f,g)) + (a<f>.AR(a,b,c,d,e,f,g)) + (a<g>.AR(a,b,c,d,e,f,g)) + ((a(h).[h#a][h#b][h#c][h#d][h#e][h#f][h#g]a<a>.AS(a,b,c,d,e,f,g,h)))
+AS(a,b,c,d,e,f,g,h) = (a<b>.AS(a,b,c,d,e,f,g,h)) + (a<c>.AS(a,b,c,d,e,f,g,h)) + (a<d>.AS(a,b,c,d,e,f,g,h)) + (a<e>.AS(a,b,c,d,e,f,g,h)) + (a<f>.AS(a,b,c,d,e,f,g,h)) + (a<g>.AS(a,b,c,d,e,f,g,h)) + (a<h>.AS(a,b,c,d,e,f,g,h))

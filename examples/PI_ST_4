@@ -1,0 +1,5 @@
+N(a) = ((a(c).[c#a]a<a>.O(a,c)))
+O(a,c) = ((a<c>.N(a)) + (a(d).[d#a][d#c]a<a>.P(a,c,d)))
+P(a,c,d) = ((a<d>.O(a,c)) + (a(e).[e#a][e#c][e#d]a<a>.Q(a,c,d,e)))
+Q(a,c,d,e) = ((a<e>.P(a,c,d)) + (a(f).[f#a][f#c][f#d][f#e]a<a>.R(a,c,d,e,f)))
+R(a,c,d,e,f) = ((a<f>.Q(a,c,d,e)))

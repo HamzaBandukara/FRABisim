@@ -1,0 +1,4 @@
+H(a) = ((a(c).[c#a]a<a>.I(a,c)))
+I(a,c) = ((a<c>.H(a)) + (a(d).[d#a][d#c]a<a>.J(a,c,d)))
+J(a,c,d) = ((a<d>.I(a,c)) + (a(e).[e#a][e#c][e#d]a<a>.K(a,c,d,e)))
+K(a,c,d,e) = ((a<e>.J(a,c,d)))
