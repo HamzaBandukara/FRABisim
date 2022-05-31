@@ -1,2 +1,0 @@
-Skeleton 5
-ac"CONDITION"h2ad"NS"gp1c"NAMESUBSTITUTION"ad"F"gp1c"FORMULA"

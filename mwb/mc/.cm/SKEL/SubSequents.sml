@@ -1,2 +1,0 @@
-Skeleton 5
-ae"SubSequent"i5Caä¢Name"gp1c"NAME"aä¢Agent"gp1c"McAGENT"aä¢Constant"gp1c"CONSTANT"aä¢Formula"gp1c"PFORMULA"aä¢Agsubsem"gp1c"AGENTSUBSEM"Caä¢Ns"gp1c"NAMESUBSTITUTION"aä¢Nameeq"gp1c"NAMEEQUATION"aä¢Action"gp1c"ACTION"aä¢Env"gp1c"ENV"f2d"List"d"McList"Njh9ad"N"gp1ÿad"F"gp1ÿad"A"gp1ÿ$ad"NE"gp1ÿ‚'Cad"CST"gp1ÿ:ad"AS"gp1ÿ-ad"ACT"gp1ÿƒad"NS"gp1ÿ‚ad"E"gp1ÿƒNgp1c"SEQ"

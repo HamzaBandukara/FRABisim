@@ -1,2 +1,0 @@
-Skeleton 5
-ac"PROVER"h6ad"N"gp1c"NAME"Cad"S"gp1c"SEQ"ad"A"gp1c"McAGENT"ad"NE"gp1c"NAMEEQUATION"ad"F"gp1c"PFORMULA"ad"ACT"gp1c"ACTION"Cad"B"gp1c"COND"ad"E"gp1c"ENV"ad"AS"gp1c"AGENTSUBSEM"ad"NS"gp1c"NAMESUBSTITUTION"ad"CST"gp1c"CONSTANT"N
