@@ -1,5 +1,3 @@
-# FRABisim
-
 <h1>RABiT</h1>
 </hr>
 RABiT (Register Automata Bisimulation Tool) is a tool that can determine strong bisimulation equivalence of two register automata by incorporating on-the-fly techniques.
@@ -13,12 +11,14 @@ The directory structure is as follows:
 - DataStructures: Contains all custom built data structures for the tool
 - Generator: Contains two versions of the generating system used
 - LOIS: Contains the LOIS bisimulation tool used for benchmarking
-- RAStack: Contains scripts that can generate automata of any size
+- RAGen: Contains scripts that can generate automata of any size
 - DEQ: Contains the code for the DEQ tool
 - Examples: Contains RA examples to use with the tool
 - pi2fra: Contains the prototype code for converting a Pi-Calculus process to FRA
 
 <h2>Requirements</h2>:
+
+The following are needed in order to run RABiT:
 
 - Python 3.9+
 - SymPy (https://www.sympy.org/en/index.html)
@@ -30,7 +30,7 @@ This section describes how to use the RABiT tool.
 <h3>Tool Usage</h3>
 In order to run the tool, enter the following from the command line from the project root directory:
 
-`python runit.py <TYPE> file1 file2 `
+`python rabit.py <TYPE> file1 file2 `
 
 where file1, file2 are the paths to the  <TYPE> is the specific bisimulation type, with the following options:
   
@@ -41,7 +41,7 @@ where file1, file2 are the paths to the  <TYPE> is the specific bisimulation typ
 
 For example, to test two stacks of size 5, 10 against each other using the on-the-fly generator algorithm, you can run from the root directory:
   
-`python runit.py -g examples/st5 examples/st10`
+`python rabit.py -g examples/st5 examples/st10`
 
 <h3>Fresh-Register Automata</h3>
 The structure for fresh-register automata are as follows:
