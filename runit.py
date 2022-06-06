@@ -68,10 +68,10 @@ if __name__ == '__main__':
         args.remove("-p")
         alg = fwd_pi
     else:
-        msg = """Usage: python runit.py AType f1 f2
+        msg = """Usage: python runit.py <TYPE>> f1 f2
 Where:  f1 = file containing first FRA / Pi-Calculus Process
         f2 = file containing second FRA / Pi-Calclus Process
-        Atype = algorithm type, where:
+        <TYPE> = algorithm type, where:
         -f = on-the=fly 
         -g = on-the-fly generator
         -e = on-the-fly exception
