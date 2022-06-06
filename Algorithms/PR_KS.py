@@ -7,9 +7,9 @@ from Generator.generator import *
 from datetime import datetime as dt
 
 from random import choice
-from RAStack.Generator import generate_stack as det
-from RAStack.NDGenerator import generate_stack as ndet
-from RAStack.Combiner import combiner
+from RAGen.Generator import generate_stack as det
+from RAGen.NDGenerator import generate_stack as ndet
+from RAGen.Combiner import combiner
 from copy import deepcopy as cp
 
 

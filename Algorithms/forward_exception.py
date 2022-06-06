@@ -1,9 +1,9 @@
 from itertools import product
 
-from RAStack.Combiner import combiner
-from RAStack.NDGenerator import generate_stack as ndet
-from RAStack.Generator import generate_stack as det
-from RAStack.GloGenerator import generate_stack as glodet
+from RAGen.Combiner import combiner
+from RAGen.NDGenerator import generate_stack as ndet
+from RAGen.Generator import generate_stack as det
+from RAGen.GloGenerator import generate_stack as glodet
 from datetime import datetime as dt
 from exceptions import WrongAssumption
 

@@ -3,10 +3,10 @@ from DataStructures.SetPermutation import *
 from Generator.generator import *
 from datetime import datetime as dt
 
-from RAStack.Generator import generate_stack as det
-from RAStack.GloGenerator import generate_stack as glodet
-from RAStack.NDGenerator import generate_stack as ndet
-from RAStack.Combiner import combiner
+from RAGen.Generator import generate_stack as det
+from RAGen.GloGenerator import generate_stack as glodet
+from RAGen.NDGenerator import generate_stack as ndet
+from RAGen.Combiner import combiner
 from copy import deepcopy as cp
 
 FLAG_DEBUG = False

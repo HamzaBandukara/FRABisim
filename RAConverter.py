@@ -1,8 +1,8 @@
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 from xml.etree import ElementTree
 from xml.dom import minidom
-from RAStack.Generator import generate_stack
-from RAStack.CPTGenerator import generate as cpt
+from RAGen.Generator import generate_stack
+from RAGen.CPTGenerator import generate as cpt
 from re import findall
 
 

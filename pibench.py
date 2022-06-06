@@ -8,7 +8,7 @@ from time import process_time_ns, thread_time_ns
 import string
 
 from DataStructures.RA_SF_A import RegisterAutomata
-from RAStack.Combiner import combiner
+from RAGen.Combiner import combiner
 from pi2fra.pyfra import RawProcess
 from pibuilders import lexstrings
 

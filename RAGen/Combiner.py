@@ -1,5 +1,5 @@
 from re import findall
-from RAStack.Generator import generate_stack
+from RAGen.Generator import generate_stack
 
 def combiner(a1: str, a2: str) -> str:
     combined = "{"

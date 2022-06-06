@@ -1,7 +1,7 @@
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 from xml.etree import ElementTree
 from xml.dom import minidom
-from RAStack.Generator import generate_stack
+from RAGen.Generator import generate_stack
 from re import findall
 
 

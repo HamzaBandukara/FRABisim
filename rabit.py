@@ -5,7 +5,7 @@ from Algorithms.forward_algorithm_3 import ra_bisim as fwd
 from Algorithms.forward_exception import ra_bisim as fwd_ex
 from Algorithms.forward_generator2 import ra_bisim as fwd_gen
 from pibisim import pi_bisim as fwd_pi
-from RAStack.Combiner import combiner
+from RAGen.Combiner import combiner
 from DataStructures.RA_SF_A import RegisterAutomata
 import sys
 import sympy

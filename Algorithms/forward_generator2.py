@@ -4,13 +4,13 @@ from Generator.generatorBK import *
 from datetime import datetime as dt
 from time import process_time
 
-from RAStack.Generator import generate_stack as det
-from RAStack.GloGenerator import generate_stack as glodet
-from RAStack.NDGenerator import generate_stack as ndet
-from RAStack.FlowerGenerator import generate_flower as flw
-from RAStack.CPTGenerator import generate as cpt
-from RAStack.CliqueGenerator import generate_clique as cli
-from RAStack.Combiner import combiner
+from RAGen.Generator import generate_stack as det
+from RAGen.GloGenerator import generate_stack as glodet
+from RAGen.NDGenerator import generate_stack as ndet
+from RAGen.FlowerGenerator import generate_flower as flw
+from RAGen.CPTGenerator import generate as cpt
+from RAGen.CliqueGenerator import generate_clique as cli
+from RAGen.Combiner import combiner
 from copy import deepcopy as cp
 
 STATS_CALLS = 0

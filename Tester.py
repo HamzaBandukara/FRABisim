@@ -17,14 +17,14 @@ import subprocess
 # from sympy import *
 from DataStructures.RA_SF_A import RegisterAutomata
 from RAConverter import ra_to_xml
-from RAStack.Generator import generate_stack as gen_det
-from RAStack.NDGenerator import generate_stack as gen_ndet
-from RAStack.RLGenerator import generate_stack as rl_gen_det
-from RAStack.RLNDGenerator import generate_stack as rl_gen_ndet
-from RAStack.CPTGenerator import generate as gen_cpt
-from RAStack.FlowerGenerator import generate_flower as gen_flw
-from RAStack.CliqueGenerator import generate_clique as gen_cli
-from RAStack.Combiner import combiner
+from RAGen.Generator import generate_stack as gen_det
+from RAGen.NDGenerator import generate_stack as gen_ndet
+from RAGen.RLGenerator import generate_stack as rl_gen_det
+from RAGen.RLNDGenerator import generate_stack as rl_gen_ndet
+from RAGen.CPTGenerator import generate as gen_cpt
+from RAGen.FlowerGenerator import generate_flower as gen_flw
+from RAGen.CliqueGenerator import generate_clique as gen_cli
+from RAGen.Combiner import combiner
 
 from Algorithms.forward_generator2 import forward as fwd_g
 from Algorithms.A_SF import is_bisim as nve

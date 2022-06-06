@@ -1,7 +1,7 @@
 from DataStructures.RA_SF_A import RegisterAutomata
 from DataStructures.SetPermutation import PartialPermutation
-from RAStack.Generator import generate_stack as det
-from RAStack.Combiner import combiner
+from RAGen.Generator import generate_stack as det
+from RAGen.Combiner import combiner
 from time import process_time
 
 
