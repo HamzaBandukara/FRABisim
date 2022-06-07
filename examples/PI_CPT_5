@@ -1,6 +1,0 @@
-U(a) = ((a(b).[b#a]a<a>.V(a,b)))
-V(a,b) = (a<b>.V(a,b)) + ((a(c).[c#a][c#b]a<a>.W(a,b,c)))
-W(a,b,c) = (a<b>.W(a,b,c)) + (a<c>.W(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.X(a,b,c,d)))
-X(a,b,c,d) = (a<b>.X(a,b,c,d)) + (a<c>.X(a,b,c,d)) + (a<d>.X(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.Y(a,b,c,d,e)))
-Y(a,b,c,d,e) = (a<b>.Y(a,b,c,d,e)) + (a<c>.Y(a,b,c,d,e)) + (a<d>.Y(a,b,c,d,e)) + (a<e>.Y(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.Z(a,b,c,d,e,f)))
-Z(a,b,c,d,e,f) = (a<b>.Z(a,b,c,d,e,f)) + (a<c>.Z(a,b,c,d,e,f)) + (a<d>.Z(a,b,c,d,e,f)) + (a<e>.Z(a,b,c,d,e,f)) + (a<f>.Z(a,b,c,d,e,f))

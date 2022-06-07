@@ -1,7 +1,0 @@
-AC(a) = ((a(b).[b#a]a<a>.AD(a,b)))
-AD(a,b) = (a<b>.AD(a,b)) + ((a(c).[c#a][c#b]a<a>.AE(a,b,c)))
-AE(a,b,c) = (a<b>.AE(a,b,c)) + (a<c>.AE(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.AF(a,b,c,d)))
-AF(a,b,c,d) = (a<b>.AF(a,b,c,d)) + (a<c>.AF(a,b,c,d)) + (a<d>.AF(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.AG(a,b,c,d,e)))
-AG(a,b,c,d,e) = (a<b>.AG(a,b,c,d,e)) + (a<c>.AG(a,b,c,d,e)) + (a<d>.AG(a,b,c,d,e)) + (a<e>.AG(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.AH(a,b,c,d,e,f)))
-AH(a,b,c,d,e,f) = (a<b>.AH(a,b,c,d,e,f)) + (a<c>.AH(a,b,c,d,e,f)) + (a<d>.AH(a,b,c,d,e,f)) + (a<e>.AH(a,b,c,d,e,f)) + (a<f>.AH(a,b,c,d,e,f)) + ((a(g).[g#a][g#b][g#c][g#d][g#e][g#f]a<a>.AI(a,b,c,d,e,f,g)))
-AI(a,b,c,d,e,f,g) = (a<b>.AI(a,b,c,d,e,f,g)) + (a<c>.AI(a,b,c,d,e,f,g)) + (a<d>.AI(a,b,c,d,e,f,g)) + (a<e>.AI(a,b,c,d,e,f,g)) + (a<f>.AI(a,b,c,d,e,f,g)) + (a<g>.AI(a,b,c,d,e,f,g))

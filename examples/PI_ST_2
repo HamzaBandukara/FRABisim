@@ -1,3 +1,0 @@
-C(a) = ((a(c).[c#a]a<a>.D(a,c)))
-D(a,c) = ((a<c>.C(a)) + (a(d).[d#a][d#c]a<a>.E(a,c,d)))
-E(a,c,d) = ((a<d>.D(a,c)))

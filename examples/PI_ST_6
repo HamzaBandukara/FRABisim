@@ -1,7 +1,0 @@
-AC(a) = ((a(c).[c#a]a<a>.AD(a,c)))
-AD(a,c) = ((a<c>.AC(a)) + (a(d).[d#a][d#c]a<a>.AE(a,c,d)))
-AE(a,c,d) = ((a<d>.AD(a,c)) + (a(e).[e#a][e#c][e#d]a<a>.AF(a,c,d,e)))
-AF(a,c,d,e) = ((a<e>.AE(a,c,d)) + (a(f).[f#a][f#c][f#d][f#e]a<a>.AG(a,c,d,e,f)))
-AG(a,c,d,e,f) = ((a<f>.AF(a,c,d,e)) + (a(g).[g#a][g#c][g#d][g#e][g#f]a<a>.AH(a,c,d,e,f,g)))
-AH(a,c,d,e,f,g) = ((a<g>.AG(a,c,d,e,f)) + (a(h).[h#a][h#c][h#d][h#e][h#f][h#g]a<a>.AI(a,c,d,e,f,g,h)))
-AI(a,c,d,e,f,g,h) = ((a<h>.AH(a,c,d,e,f,g)))

@@ -1,5 +1,0 @@
-N(a) = ((a(b).[b#a]a<a>.O(a,b)))
-O(a,b) = (a<b>.O(a,b)) + ((a(c).[c#a][c#b]a<a>.P(a,b,c)))
-P(a,b,c) = (a<b>.P(a,b,c)) + (a<c>.P(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.Q(a,b,c,d)))
-Q(a,b,c,d) = (a<b>.Q(a,b,c,d)) + (a<c>.Q(a,b,c,d)) + (a<d>.Q(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.R(a,b,c,d,e)))
-R(a,b,c,d,e) = (a<b>.R(a,b,c,d,e)) + (a<c>.R(a,b,c,d,e)) + (a<d>.R(a,b,c,d,e)) + (a<e>.R(a,b,c,d,e))

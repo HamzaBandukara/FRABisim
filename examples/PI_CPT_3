@@ -1,4 +1,0 @@
-H(a) = ((a(b).[b#a]a<a>.I(a,b)))
-I(a,b) = (a<b>.I(a,b)) + ((a(c).[c#a][c#b]a<a>.J(a,b,c)))
-J(a,b,c) = (a<b>.J(a,b,c)) + (a<c>.J(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.K(a,b,c,d)))
-K(a,b,c,d) = (a<b>.K(a,b,c,d)) + (a<c>.K(a,b,c,d)) + (a<d>.K(a,b,c,d))
