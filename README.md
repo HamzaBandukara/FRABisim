@@ -41,7 +41,7 @@ where file1, file2 are the paths to the  <TYPE> is the specific bisimulation typ
 
 For example, to test two stacks of size 5, 10 against each other using the on-the-fly generator algorithm, you can run from the root directory:
   
-`python rabit.py -g examples/st5 examples/st10`
+`python rabit.py -g examples/st/_5 examples/st/_10`
 
 <h3>Fresh-Register Automata</h3>
 The structure for fresh-register automata are as follows:
