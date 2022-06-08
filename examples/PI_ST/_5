@@ -1,0 +1,6 @@
+Y(a) = ((a(c).[c#a]a<a>.Z(a,c)))
+Z(a,c) = ((a<c>.Y(a)) + (a(d).[d#a][d#c]a<a>.AA(a,c,d)))
+AA(a,c,d) = ((a<d>.Z(a,c)) + (a(e).[e#a][e#c][e#d]a<a>.AB(a,c,d,e)))
+AB(a,c,d,e) = ((a<e>.AA(a,c,d)) + (a(f).[f#a][f#c][f#d][f#e]a<a>.AC(a,c,d,e,f)))
+AC(a,c,d,e,f) = ((a<f>.AB(a,c,d,e)) + (a(g).[g#a][g#c][g#d][g#e][g#f]a<a>.AD(a,c,d,e,f,g)))
+AD(a,c,d,e,f,g) = ((a<g>.AC(a,c,d,e,f)))

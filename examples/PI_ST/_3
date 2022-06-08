@@ -1,0 +1,4 @@
+L(a) = ((a(c).[c#a]a<a>.M(a,c)))
+M(a,c) = ((a<c>.L(a)) + (a(d).[d#a][d#c]a<a>.N(a,c,d)))
+N(a,c,d) = ((a<d>.M(a,c)) + (a(e).[e#a][e#c][e#d]a<a>.O(a,c,d,e)))
+O(a,c,d,e) = ((a<e>.N(a,c,d)))

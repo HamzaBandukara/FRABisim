@@ -1,0 +1,6 @@
+Y(a) = ((a(b).[b#a]a<a>.Z(a,b)))
+Z(a,b) = (a<b>.Z(a,b)) + ((a(c).[c#a][c#b]a<a>.AA(a,b,c)))
+AA(a,b,c) = (a<b>.AA(a,b,c)) + (a<c>.AA(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.AB(a,b,c,d)))
+AB(a,b,c,d) = (a<b>.AB(a,b,c,d)) + (a<c>.AB(a,b,c,d)) + (a<d>.AB(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.AC(a,b,c,d,e)))
+AC(a,b,c,d,e) = (a<b>.AC(a,b,c,d,e)) + (a<c>.AC(a,b,c,d,e)) + (a<d>.AC(a,b,c,d,e)) + (a<e>.AC(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.AD(a,b,c,d,e,f)))
+AD(a,b,c,d,e,f) = (a<b>.AD(a,b,c,d,e,f)) + (a<c>.AD(a,b,c,d,e,f)) + (a<d>.AD(a,b,c,d,e,f)) + (a<e>.AD(a,b,c,d,e,f)) + (a<f>.AD(a,b,c,d,e,f))

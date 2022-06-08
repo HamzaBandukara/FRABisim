@@ -1,0 +1,5 @@
+R(a) = ((a(b).[b#a]a<a>.S(a,b)))
+S(a,b) = (a<b>.S(a,b)) + ((a(c).[c#a][c#b]a<a>.T(a,b,c)))
+T(a,b,c) = (a<b>.T(a,b,c)) + (a<c>.T(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.U(a,b,c,d)))
+U(a,b,c,d) = (a<b>.U(a,b,c,d)) + (a<c>.U(a,b,c,d)) + (a<d>.U(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.V(a,b,c,d,e)))
+V(a,b,c,d,e) = (a<b>.V(a,b,c,d,e)) + (a<c>.V(a,b,c,d,e)) + (a<d>.V(a,b,c,d,e)) + (a<e>.V(a,b,c,d,e))

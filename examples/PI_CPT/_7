@@ -1,0 +1,8 @@
+AP(a) = ((a(b).[b#a]a<a>.AQ(a,b)))
+AQ(a,b) = (a<b>.AQ(a,b)) + ((a(c).[c#a][c#b]a<a>.AR(a,b,c)))
+AR(a,b,c) = (a<b>.AR(a,b,c)) + (a<c>.AR(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.AS(a,b,c,d)))
+AS(a,b,c,d) = (a<b>.AS(a,b,c,d)) + (a<c>.AS(a,b,c,d)) + (a<d>.AS(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.AT(a,b,c,d,e)))
+AT(a,b,c,d,e) = (a<b>.AT(a,b,c,d,e)) + (a<c>.AT(a,b,c,d,e)) + (a<d>.AT(a,b,c,d,e)) + (a<e>.AT(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.AU(a,b,c,d,e,f)))
+AU(a,b,c,d,e,f) = (a<b>.AU(a,b,c,d,e,f)) + (a<c>.AU(a,b,c,d,e,f)) + (a<d>.AU(a,b,c,d,e,f)) + (a<e>.AU(a,b,c,d,e,f)) + (a<f>.AU(a,b,c,d,e,f)) + ((a(g).[g#a][g#b][g#c][g#d][g#e][g#f]a<a>.AV(a,b,c,d,e,f,g)))
+AV(a,b,c,d,e,f,g) = (a<b>.AV(a,b,c,d,e,f,g)) + (a<c>.AV(a,b,c,d,e,f,g)) + (a<d>.AV(a,b,c,d,e,f,g)) + (a<e>.AV(a,b,c,d,e,f,g)) + (a<f>.AV(a,b,c,d,e,f,g)) + (a<g>.AV(a,b,c,d,e,f,g)) + ((a(h).[h#a][h#b][h#c][h#d][h#e][h#f][h#g]a<a>.AW(a,b,c,d,e,f,g,h)))
+AW(a,b,c,d,e,f,g,h) = (a<b>.AW(a,b,c,d,e,f,g,h)) + (a<c>.AW(a,b,c,d,e,f,g,h)) + (a<d>.AW(a,b,c,d,e,f,g,h)) + (a<e>.AW(a,b,c,d,e,f,g,h)) + (a<f>.AW(a,b,c,d,e,f,g,h)) + (a<g>.AW(a,b,c,d,e,f,g,h)) + (a<h>.AW(a,b,c,d,e,f,g,h))

@@ -1,0 +1,8 @@
+AP(a) = ((a(c).[c#a]a<a>.AQ(a,c)))
+AQ(a,c) = ((a<c>.AP(a)) + (a(d).[d#a][d#c]a<a>.AR(a,c,d)))
+AR(a,c,d) = ((a<d>.AQ(a,c)) + (a(e).[e#a][e#c][e#d]a<a>.AS(a,c,d,e)))
+AS(a,c,d,e) = ((a<e>.AR(a,c,d)) + (a(f).[f#a][f#c][f#d][f#e]a<a>.AT(a,c,d,e,f)))
+AT(a,c,d,e,f) = ((a<f>.AS(a,c,d,e)) + (a(g).[g#a][g#c][g#d][g#e][g#f]a<a>.AU(a,c,d,e,f,g)))
+AU(a,c,d,e,f,g) = ((a<g>.AT(a,c,d,e,f)) + (a(h).[h#a][h#c][h#d][h#e][h#f][h#g]a<a>.AV(a,c,d,e,f,g,h)))
+AV(a,c,d,e,f,g,h) = ((a<h>.AU(a,c,d,e,f,g)) + (a(i).[i#a][i#c][i#d][i#e][i#f][i#g][i#h]a<a>.AW(a,c,d,e,f,g,h,i)))
+AW(a,c,d,e,f,g,h,i) = ((a<i>.AV(a,c,d,e,f,g,h)))

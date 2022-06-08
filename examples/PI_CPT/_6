@@ -1,0 +1,7 @@
+AG(a) = ((a(b).[b#a]a<a>.AH(a,b)))
+AH(a,b) = (a<b>.AH(a,b)) + ((a(c).[c#a][c#b]a<a>.AI(a,b,c)))
+AI(a,b,c) = (a<b>.AI(a,b,c)) + (a<c>.AI(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.AJ(a,b,c,d)))
+AJ(a,b,c,d) = (a<b>.AJ(a,b,c,d)) + (a<c>.AJ(a,b,c,d)) + (a<d>.AJ(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.AK(a,b,c,d,e)))
+AK(a,b,c,d,e) = (a<b>.AK(a,b,c,d,e)) + (a<c>.AK(a,b,c,d,e)) + (a<d>.AK(a,b,c,d,e)) + (a<e>.AK(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.AL(a,b,c,d,e,f)))
+AL(a,b,c,d,e,f) = (a<b>.AL(a,b,c,d,e,f)) + (a<c>.AL(a,b,c,d,e,f)) + (a<d>.AL(a,b,c,d,e,f)) + (a<e>.AL(a,b,c,d,e,f)) + (a<f>.AL(a,b,c,d,e,f)) + ((a(g).[g#a][g#b][g#c][g#d][g#e][g#f]a<a>.AM(a,b,c,d,e,f,g)))
+AM(a,b,c,d,e,f,g) = (a<b>.AM(a,b,c,d,e,f,g)) + (a<c>.AM(a,b,c,d,e,f,g)) + (a<d>.AM(a,b,c,d,e,f,g)) + (a<e>.AM(a,b,c,d,e,f,g)) + (a<f>.AM(a,b,c,d,e,f,g)) + (a<g>.AM(a,b,c,d,e,f,g))
