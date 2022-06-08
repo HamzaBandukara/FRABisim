@@ -16,7 +16,7 @@ The directory structure is as follows:
 - Examples: Contains RA examples to use with the tool
 - pi2fra: Contains the prototype code for converting a Pi-Calculus process to FRA
 
-<h2>Requirements</h2>:
+<h2>Requirements</h2>
 
 The following are needed in order to run RABiT:
 
@@ -46,23 +46,62 @@ For example, to test two stacks of size 5, 10 against each other using the on-th
 <h3>Fresh-Register Automata</h3>
 The structure for fresh-register automata are as follows:
   
-'{<States>}{<initial state>}{<available registers>}{<Transition function>}{<final states>}'
+```
+{<States>}{<initial state>}{<available registers>}{<Transition function>}{<final states>}
+```
 
+For example, creating a stack of size 1 would look like this:
+  
+```
+{q0,q1}{q0}{(q0)(q1,1)}{(q0,push,1,L,q1)(q1,pop,1,K,q0)}{}
+```
+
+Where:
+  
+- q0 and q1 are states
+- q0 is the initial state
+- q0 has no available register, q1 has only the register 1 available
+- The transitions available to the automaton are as follows:
+  - (q0,push,1,L,q1) is a transition from q0, with the tag 'push' on register 1 which is a locally-fresh transition
+  - (q1,pop,1,K,q0) is a transition from q1, with the tag 'pop' on register 1 which is a known transition
+- And there are no final states
+  
 <h3>Pi-Calculus Processes</h3>
 Pi-Calculus processes have a grammar defined as such for processes:
   
 ```
-root    : line+ EOF  ;
-line    : process NEWLINE | process | definition NEWLINE | definition ;
-definition: PROCESSNAME '(' (CHANNEL ',')* CHANNEL ')' '=' process  ;
-process :   '(' process ')' | process PAR process | process SUM process | zero | input | output | nu | eq | neq | proc;
+file    : (line '\n')*line EOF  ;
+line    : process | definition ;
+definition: PROCESSNAME '(' (CHAN ',')* CAHN ')' '=' process  ;
+process :   '(' process ')' | process '|' process | process '+' process | zero | input | output | nu | eq | neq | proc;
 zero    : '0'  ;
-output   : CHANNEL '<' CHANNEL '>.' process ;
-input  : CHANNEL '(' CHANNEL ').' process;
-nu      : '$' CHANNEL '.' process ;
-eq      : '[' CHANNEL '=' CHANNEL ']' process ;
-neq     : '[' CHANNEL '#' CHANNEL ']' process ;
-proc     : PROCESSNAME '(' (CHANNEL ',')* CHANNEL ')';
-CHANNEL     : [a-z]+ ;
-PROCESSNAME : ([A-Z] | [0-9])+ ;
+output   : CHAN '<' CHAN '>.' process ;
+input  : CHAN '(' CHAN ').' process;
+nu      : '$' CHAN '.' process ;
+eq      : '[' CHAN '=' CHAN ']' process ;
+neq     : '[' CHAN '#' CHAN ']' process ;
+proc     : PROCNAME '(' (CHAN ',')* CHAN ')';
+CHAN     : [a-z]+ ;
+PROCNAME : ([A-Z] | [0-9])+ ;
 ```
+
+For example, a process could be:
+`A(a) = a(b).A(b)`
+for a process that receives some name on channel 'a', binds it to 'b' and then repeats using the name 'b'.
+
+With processes, the first line will be the process that is tested.
+For example, if file 1 is:
+
+```
+A(b) = a(b).B(a)
+B(a) = a<a>.A(a)
+```
+  
+and file 2 is:
+  
+```
+C(a) = $b.a<b>.D(a)
+D(a) = $c.a<c>.C(c)
+```
+  
+The tool will test whether C(a) and A(b) are bisimilar.
