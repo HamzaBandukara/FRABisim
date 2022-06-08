@@ -84,3 +84,24 @@ proc     : PROCNAME '(' (CHAN ',')* CHAN ')';
 CHAN     : [a-z]+ ;
 PROCNAME : ([A-Z] | [0-9])+ ;
 ```
+
+For example, a process could be:
+`A(a) = a(b).A(b)`
+for a process that receives some name on channel 'a', binds it to 'b' and then repeats using the name 'b'.
+
+With processes, the first line will be the process that is tested.
+For example, if file 1 is:
+
+```
+A(b) = a(b).B(a)
+B(a) = a<a>.A(a)
+```
+  
+and file 2 is:
+  
+```
+C(a) = $b.a<b>.D(a)
+D(a) = $c.a<c>.C(c)
+```
+  
+The tool will test whether C(a) and A(b) are bisimilar.
