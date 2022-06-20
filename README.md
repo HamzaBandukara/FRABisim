@@ -47,9 +47,20 @@ For example, to test two stacks of size 5, 10 against each other using the on-th
 The structure for fresh-register automata are as follows:
   
 ```
-{<States>}{<initial state>}{<available registers>}{<Transition function>}{<final states>}
+{<States>}{<initial state>}{<available registers>}{<Transition relation>}{<final states>}
 ```
 
+where:
+
+- `States` is the set of states available to the automaton
+- `initial state` is where the automaton begins
+- `available registers` are the registers available at each individual state; each state should be of the form `(<State>, <registers>)`
+- `Transition relation` is the set of transitions the automaton can produce, where each transition is of the form `(src, tag, register, type, tgt)`, where type is 
+  - K - known
+  - L - locally-fresh
+  - G  - globally-fresh
+- `Final states` are the list of states the automaton can terminate at.
+  
 For example, creating a stack of size 1 would look like this:
   
 ```
