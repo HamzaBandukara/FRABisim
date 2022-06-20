@@ -32,7 +32,7 @@ In order to run the tool, enter the following from the command line from the pro
 
 `python rabit.py <TYPE> file1 file2 `
 
-where file1, file2 are the paths to the  <TYPE> is the specific bisimulation type, with the following options:
+where file1, file2 are the paths to the two register automata / processes, and `<TYPE>` is the specific bisimulation type, with the following options:
   
 - -f for on-the-fly standard
 - -g for on-the-fly generator
