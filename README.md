@@ -75,6 +75,8 @@ Where:
 - The transitions available to the automaton are as follows:
   - (q0,push,1,L,q1) is a transition from q0, with the tag 'push' on register 1 which is a locally-fresh transition
   - (q1,pop,1,K,q0) is a transition from q1, with the tag 'pop' on register 1 which is a known transition
+  - (q1,push,2,L,q2) is a transition from q0, with the tag 'push' on register 1 which is a locally-fresh transition
+  - (q2,pop,2,K,q1) is a transition from q1, with the tag 'pop' on register 1 which is a known transition
 - And there are no final states
 
 At each push operation, the stack reads in a name that is not currently in its registers (hence the L type). Thus, the stack will always contain distinct names.
