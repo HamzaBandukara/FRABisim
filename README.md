@@ -32,7 +32,7 @@ In order to run the tool, enter the following from the command line from the pro
 
 `python rabit.py <TYPE> file1 file2 `
 
-where file1, file2 are the paths to the  <TYPE> is the specific bisimulation type, with the following options:
+where file1, file2 are the paths to the two register automata / processes, and `<TYPE>` is the specific bisimulation type, with the following options:
   
 - -f for on-the-fly standard
 - -g for on-the-fly generator
@@ -41,30 +41,45 @@ where file1, file2 are the paths to the  <TYPE> is the specific bisimulation typ
 
 For example, to test two stacks of size 5, 10 against each other using the on-the-fly generator algorithm, you can run from the root directory:
   
-`python rabit.py -g examples/st5 examples/st10`
+`python rabit.py -g examples/st/_5 examples/st/_10`
 
 <h3>Fresh-Register Automata</h3>
 The structure for fresh-register automata are as follows:
   
 ```
-{<States>}{<initial state>}{<available registers>}{<Transition function>}{<final states>}
+{<States>}{<initial state>}{<available registers>}{<Transition relation>}{<final states>}
 ```
 
-For example, creating a stack of size 1 would look like this:
+where:
+
+- states is the set of states of the automaton, including an initial state and a set of final states
+- available registers is a map assigning the registers available at each state; each map entry should be of the form (<state>, <registers>)
+- transition relation is the transition relation, where each transition is of the form (src, tag, register, type, tgt), where:
+  - src and tgt are the source and target states
+  - tag is a label from a finite set of tags
+  - register is a register index (an integer)
+  - type is one of K (known), L ( locally-fresh) or G (globally-fresh)
+- final states is the set of states the automaton can terminate at.
+  
+For example, creating a stack of size 2 would look like this:
   
 ```
-{q0,q1}{q0}{(q0)(q1,1)}{(q0,push,1,L,q1)(q1,pop,1,K,q0)}{}
+{q0,q1,q2}{q0}{(q0)(q1,1)(q2,1,2)}{(q0,push,1,L,q1)(q1,pop,1,K,q0)(q1,push,2,L,q2)(q2,pop,2,K,q1)}{}
 ```
 
 Where:
   
-- q0 and q1 are states
+- q0, q1 and q2 are states
 - q0 is the initial state
-- q0 has no available register, q1 has only the register 1 available
+- q0 has no available register, q1 has only the register 1 available and q2 has the registers 1 and 2 available to it
 - The transitions available to the automaton are as follows:
   - (q0,push,1,L,q1) is a transition from q0, with the tag 'push' on register 1 which is a locally-fresh transition
   - (q1,pop,1,K,q0) is a transition from q1, with the tag 'pop' on register 1 which is a known transition
+  - (q1,push,2,L,q2) is a transition from q0, with the tag 'push' on register 1 which is a locally-fresh transition
+  - (q2,pop,2,K,q1) is a transition from q1, with the tag 'pop' on register 1 which is a known transition
 - And there are no final states
+
+At each push operation, the stack reads in a name that is not currently in its registers (hence the L type). Thus, the stack will always contain distinct names.
   
 <h3>Pi-Calculus Processes</h3>
 Pi-Calculus processes have a grammar defined as such for processes:
