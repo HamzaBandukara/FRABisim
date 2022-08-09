@@ -39,8 +39,8 @@ class LinkedList:
         s += "None"
         return s
 
-class GeneratingSystem:
 
+class GeneratingSystem:
     MEMO = {}
     UMEMO = {}
     COUNTER = 0
@@ -50,11 +50,9 @@ class GeneratingSystem:
         if len(args) == 2:
             partitions = args[0]
             self.RA = args[1]
-            self.partition_set = None
             self.partition_dict = {}
             self.hash = None
             for partition in partitions:
-                self.partition_set = LinkedList(partition, self.partition_set)
                 for state in partition.partition:
                     self.partition_dict[state] = partition
         else:
@@ -62,8 +60,7 @@ class GeneratingSystem:
 
     def clone(self):
         gs = GeneratingSystem(self.RA)
-        gs.partition_set = self.partition_set
-        gs.partition_dict = {k: v for k,v in self.partition_dict.items()}
+        gs.partition_dict = {k: v for k, v in self.partition_dict.items()}
         gs.hash = self.hash
         return gs
 
@@ -86,26 +83,13 @@ class GeneratingSystem:
         #         return first, second
 
     def set(self, state):
-        self.partition_set = state[0]
-        self.partition_dict = state[1]
+        self.partition_dict = state
 
     def get_state(self):
-        return self.partition_set, self.partition_dict.copy()
+        return self.partition_dict.copy()
 
     def __iter__(self):
         return iter(self.partition_set)
-
-    def is_bisimulation(self) -> bool:
-        for partition in self.partition_set:
-            qc = partition.qc
-            for g in partition.Gc:
-                if not self.one_step(qc, g, qc):
-                    return False
-            states = partition.partition
-            for q in states:
-                if not self.one_step(qc, partition.sigmas[q], q):
-                    return False
-        return True
 
     def is_member(self, q1: str, sigma: PartialPermutation, q2: str) -> bool:
         p1, p2 = self.find_two(q1, q2)
@@ -115,74 +99,6 @@ class GeneratingSystem:
         s_hat = s1 * sigma * s2
         res = p1.sigma_in_g(s_hat)
         return res
-
-    def one_step(self, q1: str, sigma: PartialPermutation, p1: str):
-        RA = self.RA
-        transitions_1, transitions_2 = RA.get_transitions(q1), RA.get_transitions(p1)
-        for pair_1 in transitions_1:
-            #  Known Transitions
-            if pair_1[1] == "K":
-                label_1 = pair_1[0]
-                label_2 = sigma.get(label_1)
-                if label_2 is not None:
-                    pair_2 = label_2, "K"
-                    for next_q1 in RA.get_trans_lbl(q1, pair_1):
-                        found = False
-                        for next_p1 in RA.get_trans_lbl(p1, pair_2):
-                            r_sigma = sigma.restrict(RA.s_map[next_q1], RA.s_map[next_p1])
-                            if self.is_member(next_q1, r_sigma, next_p1):
-                                found = True
-                                break
-                        if not found:
-                            return False
-                else:
-                    for next_q1 in RA.get_trans_lbl(q1, pair_1):
-                        found = False
-                        for pair_2 in transitions_2:
-                            if not pair_2[1] == "L":
-                                continue
-                            new_sigma = sigma.add(label_1, pair_2[0])
-                            for next_p1 in RA.get_trans_lbl(p1, pair_2):
-                                r_sigma = new_sigma.restrict(RA.s_map[next_q1], RA.s_map[next_p1])
-                                if self.is_member(next_q1, r_sigma, next_p1):
-                                    found = True
-                                    break
-                            if found:
-                                break
-                        if not found:
-                            return False
-            #  Locally-Fresh Transitions
-            elif pair_1[1] == "L":
-                label_1 = pair_1[0]
-                for next_q1 in RA.get_trans_lbl(q1, pair_1):
-                    found = False
-                    for pair_2 in transitions_2:
-                        if not pair_2[1] == "L":
-                            continue
-                        new_sigma = sigma.add(label_1, pair_2[0])
-                        for next_p1 in RA.get_trans_lbl(p1, pair_2):
-                            r_sigma = new_sigma.restrict(RA.s_map[next_q1], RA.s_map[next_p1])
-                            if self.is_member(next_q1, r_sigma, next_p1):
-                                found = True
-                                break
-                        if found:
-                            break
-                    if not found:
-                        return False
-                sub = sigma.img_sub(RA.s_map[p1])
-                for label_2 in sub:
-                    pair_2 = label_2, "K"
-                    new_sigma = sigma.add(label_1, label_2)
-                    for next_q1 in RA.get_trans_lbl(q1, pair_1):
-                        found = False
-                        for next_p1 in RA.get_trans_lbl(p1, pair_2):
-                            r_sigma = new_sigma.restrict(RA.s_map[next_q1], RA.s_map[next_p1])
-                            if self.is_member(next_q1, r_sigma, next_p1):
-                                found = True
-                                break
-                        if not found:
-                            return False
-        return True
 
     def check_inconsistency(self, bad):
         for elem in bad:
@@ -203,7 +119,6 @@ class GeneratingSystem:
             part = p1.clone()
         for state in part.partition:
             self.partition_dict[state] = part
-        self.partition_set = LinkedList(part, self.partition_set)
         sigma_q = part.get_sigma(q)
         part_p = p2
         sigma_p = part_p.get_sigma(p)
@@ -271,21 +186,23 @@ class GeneratingSystem:
     @staticmethod
     def bfs(good: set, bad: set, edges):
         while len(bad) > 0:
-          root = bad.pop()
-          seen = {root}
-          visited = set()
-          while len(seen) > 0:
-            current = seen.pop()
-            visited.add(current)
-            bad.discard(current)
-            good.discard(current)
-            for vertex in edges[current]:
-                if vertex not in visited and vertex not in seen:
-                    seen.add(vertex)
+            root = bad.pop()
+            seen = {root}
+            visited = set()
+            while len(seen) > 0:
+                current = seen.pop()
+                visited.add(current)
+                bad.discard(current)
+                good.discard(current)
+                for vertex in edges[current]:
+                    if vertex not in visited and vertex not in seen:
+                        seen.add(vertex)
         return good
+
     """
     Returns True if can reach a marked vertex 
     """
+
     @staticmethod
     def breadth_first_search(edges, marked, root):
         if root in marked:
@@ -319,19 +236,12 @@ class GeneratingSystem:
 
     def __str__(self):
         s = "Generating System:"
-        for p in self.partition_set:
+        for p in self.partition_dict.values():
             s += "\n- {}".format(str(p))
         return s
 
     def same_set(self, p, q):
         return self[p] == self[q]
-        # for partition in self.partition_set:
-        #     counter = 0
-        #     for x in partition.partition:
-        #         if x == p or x == q:
-        #             counter += 1
-        #     if counter == 2: return True
-        #     if counter == 1: return False
 
     def __len__(self):
         total = 0
@@ -346,17 +256,16 @@ class GeneratingSystem:
 
 
 class Partition:
-
     GROUPMEMO = {}
 
     def __init__(self, partition: {str}, representative: (str, {str}, {PartialPermutation}),
                  sigmas: {str: PartialPermutation}, dom: [str]):
         # NT: what is dom needed for?
         self.partition = partition
-        self.qc, self.Xc, self.Gc = representative
-        self.group_form = None
-        self.sigmas = sigmas # NT: I guess these are rays?
+        self.qc, self.Xc, Gc = representative
         self.full_domain = dom
+        self.group_form = SetPermutationGroup(self.full_domain, *Gc)
+        self.sigmas = sigmas  # NT: I guess these are rays?
         self.hash = None
         self.members = set()
         if len(self.sigmas.keys()) != len(partition):
@@ -377,32 +286,27 @@ class Partition:
         return False
 
     def __hash__(self):
-        if self.hash is None:
-            self.hash = hash((self.qc, frozenset(self.Xc), frozenset(self.Gc)))
+        # if self.hash is None:
+        hs = hash(self.group_form)
+        self.hash = hash((self.qc, frozenset(self.Xc), hs))
         return self.hash
 
     def __len__(self):
-        if self.group_form is None:
-            t = tuple(self.Gc)
-            try:
-                self.group_form = Partition.GROUPMEMO[t]
-            except:
-                Partition.GROUPMEMO[t] = SetPermutationGroup(self.full_domain, *self.Gc)
-                self.group_form = Partition.GROUPMEMO[t]
         return len(self.group_form)
-
 
     def clone(self):
         partition = self.partition.copy()
-        rep = self.qc, set(self.Xc), set(self.Gc)
+        rep = self.qc, set(self.Xc), set(self.group_form.strong_gens)
         sigmas = self.sigmas.copy()
         p = Partition(partition, rep, sigmas, self.full_domain)
         p.members = self.members.copy()
         return p
 
     def add_sigma(self, sigma: PartialPermutation):
-        self.Gc.add(sigma)
-        self.group_form = None
+        print("1", self.group_form.strong_gens)
+        self.group_form.strong_gens.append(sigma)
+        if sigma in self.group_form: print("YES")
+        print("2", self.group_form.strong_gens)
 
     def closure(self, RA: RegisterAutomata) -> set:
         memo = {}
@@ -469,14 +373,14 @@ class Partition:
 
     def generate_h(self) -> set:
         H = set()
-        for gc in self.Gc:
+        for gc in self.group_form.strong_gens:
             H.add((self.qc, gc, self.qc))
         for state in self.partition:
             H.add((self.qc, self.sigmas[state], state))
         return H
 
     def get_Gc(self):
-        return self.Gc
+        return self.group_form.strong_gens
 
     def get_sigma(self, state: str) -> PartialPermutation:
         return self.sigmas[state]
@@ -485,20 +389,9 @@ class Partition:
         return self.partition
 
     def sigma_in_g(self, sigma: PartialPermutation) -> bool:
-        # if set(self.Xc).issubset(sigma.domain):
-        # print(self.group_form)
-        # print(self.Xc, sigma.domain, sigma.image)
         if sigma in self.members: return True
         xc = set(self.Xc)
-        if set(sigma.domain) == xc and set(sigma.image)==xc:
-        #     print("INIF")
-            if self.group_form is None:
-                t = tuple(self.Gc)
-                try:
-                    self.group_form = Partition.GROUPMEMO[t]
-                except:
-                    Partition.GROUPMEMO[t] = SetPermutationGroup(self.full_domain, *self.Gc)
-                    self.group_form = Partition.GROUPMEMO[t]
+        if set(sigma.domain) == xc and set(sigma.image) == xc:
             res = sigma in self.group_form
             if res:
                 self.members.add(sigma)
@@ -506,8 +399,7 @@ class Partition:
         return False
 
     def update_group(self, Gc):
-        self.Gc = Gc
-        self.group_form = None
+        self.group_form = SetPermutationGroup(self.full_domain, *Gc)
 
     def __iter__(self):
         return iter(self.partition)
@@ -516,16 +408,17 @@ class Partition:
         def set2str(A):
             if len(A) == 0: return "{}"
             s = "{"
-            for x in A: s += " "+str(x)+","
-            return s[:-1]+" }"
+            for x in A: s += " " + str(x) + ","
+            return s[:-1] + " }"
 
         def dict2str(A):
             if len(A) == 0: return "{}"
             s = "{"
-            for x, y in A.items(): s += " "+str(x)+": "+str(y)+","
-            return s[:-1]+" }"            
-        
-        return "Partition: {}, {}, {} -> {}".format(self.qc, self.Xc, set2str(self.Gc), dict2str(self.sigmas))
+            for x, y in A.items(): s += " " + str(x) + ": " + str(y) + ","
+            return s[:-1] + " }"
+
+        return "Partition: {}, {}, {} -> {}".format(self.qc, self.Xc, set2str(set(self.group_form.strong_gens)),
+                                                    dict2str(self.sigmas))
 
 
 class BadGenerator:
@@ -581,20 +474,22 @@ class BadGenerator:
         #     return
         if q not in self.partition_dict:
             rep = (
-               q,
-               sigma.domain,
-               {PartialPermutation(sigma.domain, sigma.full_domain, [x for x in range(len(sigma.full_domain))])}
+                q,
+                sigma.domain,
+                {PartialPermutation(sigma.domain, sigma.full_domain, [x for x in range(len(sigma.full_domain))])}
             )
-            part = Partition({q}, rep, {q: PartialPermutation(sigma.full_domain, set(zip(sigma.domain, sigma.domain)))}, sigma.full_domain)
+            part = Partition({q}, rep, {q: PartialPermutation(sigma.full_domain, set(zip(sigma.domain, sigma.domain)))},
+                             sigma.full_domain)
             self.partition_dict[q] = part
             self.partition_set.add(part)
         if p not in self.partition_dict:
             rep = (
-               p,
-               sigma.image,
-               {PartialPermutation(sigma.image, sigma.full_domain, [x for x in range(len(sigma.full_domain))])}
+                p,
+                sigma.image,
+                {PartialPermutation(sigma.image, sigma.full_domain, [x for x in range(len(sigma.full_domain))])}
             )
-            part = Partition({p}, rep, {p: PartialPermutation(sigma.full_domain, set(zip(sigma.image, sigma.image)))}, sigma.full_domain)
+            part = Partition({p}, rep, {p: PartialPermutation(sigma.full_domain, set(zip(sigma.image, sigma.image)))},
+                             sigma.full_domain)
             self.partition_dict[p] = part
             self.partition_set.add(part)
         sigma_q = self.partition_dict[q].get_sigma(q)
@@ -667,6 +562,7 @@ class BadGenerator:
     """
     Returns True if can reach a marked vertex 
     """
+
     @staticmethod
     def breadth_first_search(edges, marked: set, root):
         if root in marked:
@@ -739,7 +635,7 @@ class SymmetricDownSet:
     # - if sigma'<= sigma, do not add (q,sigma,p)
     def update(self, q: str, sigma: PartialPermutation, p: str):
         self.bad_set.add((q, sigma, p))
-        self.bad_set.add((p,~sigma, q))
+        self.bad_set.add((p, ~sigma, q))
         if q not in self.partition_dict:
             self.partition_dict[q] = {}
         if p not in self.partition_dict[q]:
@@ -755,8 +651,8 @@ class SymmetricDownSet:
                 self.partition_dict[q][p].remove(s)
                 self.partition_dict[p][q].remove(~s)
                 self.size -= 2
-                self.generators -= {(q, sigma, p),(p,~sigma,q)}
-        self.generators.add((q,sigma,p))
+                self.generators -= {(q, sigma, p), (p, ~sigma, q)}
+        self.generators.add((q, sigma, p))
         self.partition_dict[q][p].add(sigma)
         self.partition_dict[p][q].add(~sigma)
         self.size += 2
@@ -766,16 +662,17 @@ class SymmetricDownSet:
             if L == []: return "[]"
             s = "["
             for x in L:
-                s += " "+str(x)+","
-            return s[:-1]+" ]"
+                s += " " + str(x) + ","
+            return s[:-1] + " ]"
 
         if self.size == 0: return "{}"
         s = "{"
         for p in self.partition_dict:
             for q in self.partition_dict[p]:
-                s += " ("+str(p)+","+str(q)+") -> "+list2str(self.partition_dict[p][q])
-        return s[:-1]+" }"
+                s += " (" + str(p) + "," + str(q) + ") -> " + list2str(self.partition_dict[p][q])
+        return s[:-1] + " }"
+
 
 def powerset(iterable):
     s = list(iterable)
-    return itertools.chain.from_iterable(itertools.combinations(s, r) for r in range(len(s)+1))
+    return itertools.chain.from_iterable(itertools.combinations(s, r) for r in range(len(s) + 1))
