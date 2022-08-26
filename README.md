@@ -119,4 +119,6 @@ C(a) = $b.a<b>.D(a)
 D(a) = $c.a<c>.C(c)
 ```
   
-The tool will test whether C(a) and A(b) are bisimilar.
+The tool will test whether C(a) and A(b) are bisimilar. 
+  
+RABiT can check bisimilarity for finite control processes (i.e. no parallel composition within recursive definitions) and assumes that processes follow a Barendregt convention on bound names (each bound name is distinct from free and other bound names).
