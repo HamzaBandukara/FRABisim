@@ -112,6 +112,9 @@ class SetPermutationGroup(PermutationGroup):
         raise TypeError("CALLED DEEPCOPY IN SETPG")
         return SetPermutationGroup(self.full_domain, *self.generators)
 
+    def __hash__(self):
+        return super.__hash__(self)
+
 
 class PartialPermutation(SetPermutation):
 

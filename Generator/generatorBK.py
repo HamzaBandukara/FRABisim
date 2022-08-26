@@ -131,7 +131,7 @@ class GeneratingSystem:
                 GeneratingSystem.UMEMO[(p1, p2, q, sigma, p)] = part
                 return
             # Case 1b
-            # print("CASE 1B")
+            # print("CASE 1B")sig
             I = set(part.get_Gc())
             I.add(sigma_hat)
         else:
@@ -287,8 +287,8 @@ class Partition:
 
     def __hash__(self):
         # if self.hash is None:
-        hs = hash(self.group_form)
-        self.hash = hash((self.qc, frozenset(self.Xc), hs))
+        hs = self.qc, frozenset(self.Xc), hash(self.group_form)
+        self.hash = hash(hs)
         return self.hash
 
     def __len__(self):

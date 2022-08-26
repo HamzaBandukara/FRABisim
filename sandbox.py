@@ -1,23 +1,23 @@
-import os
+import subprocess
 
-from RAGen.Generator import generate_stack as st
-from RAGen.RLGenerator import generate_stack as ts
-from RAGen.NDGenerator import generate_stack as lst
-from RAGen.CPTGenerator import generate as flw
-from RAGen.CliqueGenerator import generate_clique as cli
-from RAGen.FlowerGenerator import generate_flower as cpt
-
-from pibuilders import stack_builder as pist, cpt_builder as picpt
+import py4j.java_gateway
+from py4j.java_gateway import JavaGateway
+from py4j.java_collections import JavaSet, JavaMap
 
 
-a, b = [st, ts, lst, flw, cli, cpt, pist, picpt], \
-       ["ST", "TS", "LST", "CPT", "CLI", "FLW", "PI_ST", "PI_CPT"]
-for i in range(8):
-    os.mkdir(f"./examples/{b[i]}")
-    for size in range(1, 20):
-        with open(f"./examples/{b[i]}/_{size}", "w") as f:
-            f.write(a[i](size))
-    if i < 5:
-        for size in range(21, 201):
-            with open(f"./examples/{b[i]}/_{size}", "w") as f:
-                f.write(a[i](size))
+def func():
+    print("Executed!")
+
+
+if __name__ == '__main__':
+    x = subprocess.Popen("java -jar japfra/japfra.jar", stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    try:
+        gateway = JavaGateway(auto_field=True)
+        FRA = gateway.entry_point.getJ()
+        print(py4j.java_gateway.get_field(FRA, "transitions"))
+        FRA.Run("tmp.pi", "q")
+        print(py4j.java_gateway.get_field(FRA, "transitions"))
+    except:
+        print("JAPFRA ERROR!")
+    for line in x.stdout: print(line)
+    x.kill()
