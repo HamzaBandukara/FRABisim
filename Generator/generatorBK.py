@@ -303,10 +303,7 @@ class Partition:
         return p
 
     def add_sigma(self, sigma: PartialPermutation):
-        print("1", self.group_form.strong_gens)
         self.group_form.strong_gens.append(sigma)
-        if sigma in self.group_form: print("YES")
-        print("2", self.group_form.strong_gens)
 
     def closure(self, RA: RegisterAutomata) -> set:
         memo = {}

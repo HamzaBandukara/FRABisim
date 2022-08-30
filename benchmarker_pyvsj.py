@@ -238,4 +238,5 @@ if __name__ == '__main__':
     sizes = list(range(2, 11, 1))
     sizes.extend(range(10, 201, 10))
     file = "./Benchmarks/Benchmarks_pyvsj.csv"
+    # benchmarker(sizes, file)
     benchmarker(range(90, 91, 1), file)
