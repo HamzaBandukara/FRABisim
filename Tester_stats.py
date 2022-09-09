@@ -26,7 +26,7 @@ from RAGen.NDGenerator import generate_stack as gen_ndet
 from RAGen.RLGenerator import generate_stack as rl_gen_det
 from RAGen.RLNDGenerator import generate_stack as rl_gen_ndet
 from RAGen.CPTGenerator import generate as gen_cpt
-from RAGen.FlowerGenerator import generate_flower as gen_flw
+from RAGen.FlowerGenerator import generate as gen_flw
 from RAGen.Combiner import combiner
 from RAGen.CliqueGenerator import generate_clique as gen_cli
 
@@ -216,12 +216,9 @@ def deq(a1, a2, repetitions=3):
     f.close()
     times, results = [], []
     for _ in range(repetitions):
-        # x = os.popen("deq ./deq/examples/cptR-3.xml ./deq/examples/cptR-3.xml").read()
         try:
             x = str(subprocess.check_output(["deq", "./xml_1.xml", "./xml_2.xml"], stderr=subprocess.STDOUT, timeout=60))
-            # print(x)
             x = x.replace(" ", "").replace("\n", "").replace("\'", "").split(",")
-            # print(x)
             times.append(float(x[3].replace("\\", "").replace("n", "").replace("r", "")))
             results.append(x[2])
         except subprocess.TimeoutExpired:
