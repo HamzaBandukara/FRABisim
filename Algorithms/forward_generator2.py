@@ -21,7 +21,7 @@ FLAG_CHK_TAGS = True
 CHKED_TAGS = {}
 
 def db_print(*args):
-    if FLAG_DEBUG: print(*args); input()
+    if FLAG_DEBUG: print(*args);
 
 def chk_tags(RA,q1,q2):
     if not FLAG_CHK_TAGS: return None
@@ -74,7 +74,7 @@ def bisim_ok(G, RA, q1, sigma, q2, not_bisim):
 
 
 def simulate(q1, sigma, q2, RA, G, not_bisim) -> bool:
-    # print("SIM: ", q1, sigma, q2)
+    db_print("\nSIM: ", q1, sigma, q2)
     all_trans_1, all_trans_2 = RA.get_transitions(q1), RA.get_transitions(q2)
     for tag in all_trans_1:
         if tag not in all_trans_2:
@@ -209,8 +209,8 @@ def ra_bisim(RA, q1, q2, sigma=set()):
 if __name__ == '__main__':
     import sys
     sys.setrecursionlimit(500000)
-    ra = cpt(2)
-    ra2 = cpt(2)
+    ra = cpt(1)
+    ra2 = cpt(1)
     t = dt.now()
     ra = RegisterAutomata(combiner(ra, ra2))
     print("T: ", (dt.now() - t).total_seconds())
@@ -221,8 +221,3 @@ if __name__ == '__main__':
     times.append(t)
     print(t)
     print(result)
-    print(len(PartialPermutation.MEMO))
-    tmp = set()
-    for x in PartialPermutation.MEMO:
-        tmp.add(hash(x))
-    print(len(tmp))

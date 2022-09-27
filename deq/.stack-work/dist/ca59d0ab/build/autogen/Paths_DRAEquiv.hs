@@ -29,12 +29,12 @@ version :: Version
 version = Version [1,1] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV2\\deq\\.stack-work\\install\\82ab0e13\\bin"
-libdir     = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV2\\deq\\.stack-work\\install\\82ab0e13\\lib\\x86_64-windows-ghc-8.0.2\\DRAEquiv-1.1"
-dynlibdir  = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV2\\deq\\.stack-work\\install\\82ab0e13\\lib\\x86_64-windows-ghc-8.0.2"
-datadir    = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV2\\deq\\.stack-work\\install\\82ab0e13\\share\\x86_64-windows-ghc-8.0.2\\DRAEquiv-1.1"
-libexecdir = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV2\\deq\\.stack-work\\install\\82ab0e13\\libexec"
-sysconfdir = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV2\\deq\\.stack-work\\install\\82ab0e13\\etc"
+bindir     = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV4\\deq\\.stack-work\\install\\82ab0e13\\bin"
+libdir     = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV4\\deq\\.stack-work\\install\\82ab0e13\\lib\\x86_64-windows-ghc-8.0.2\\DRAEquiv-1.1"
+dynlibdir  = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV4\\deq\\.stack-work\\install\\82ab0e13\\lib\\x86_64-windows-ghc-8.0.2"
+datadir    = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV4\\deq\\.stack-work\\install\\82ab0e13\\share\\x86_64-windows-ghc-8.0.2\\DRAEquiv-1.1"
+libexecdir = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV4\\deq\\.stack-work\\install\\82ab0e13\\libexec"
+sysconfdir = "C:\\Users\\mhb_n\\PycharmProjects\\FRABisimV4\\deq\\.stack-work\\install\\82ab0e13\\etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "DRAEquiv_bindir") (\_ -> return bindir)

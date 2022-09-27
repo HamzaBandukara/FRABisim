@@ -158,7 +158,7 @@ def record(path, file, representation, q1, s, q2, repetitions=3):
     print("Testing", path, file)
     t_name = path + "_" + file
     ra = RegisterAutomata(representation)
-    line = "{},{},{},{},".format(path, file, len(ra.get_states()), len(ra.transitions))
+    line = "{},{},{},{},".format("G_"+path, file, len(ra.get_states()), len(ra.transitions))
     representation = representation.replace(" ", "")
     q1 = q1.replace(" ", "")
     q2 = q2.replace(" ", "")
@@ -272,6 +272,7 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
     with open("STATS.csv", "w") as f:
         f.write("Test,Method,Calls,NewCalls,StateSpace,Bisim,NotBisim,Time\n")
     timeout = 30
+
     # Test_01 - Single Automaton on its ID
 
     # Test_01_A - Files from DEQ
@@ -286,28 +287,29 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
     #     result, time = deq(representation, representation, repetitions)
     #     output_file.write(",{},{:.16f}\n".format(result, float(time)))
     #     output_file.close()
-
+    #
     # Test_01_B - LR Deterministic Stacks
     for i in range(start, size, steps):
-        representation = gen_det(i)
-        q1 = representation.split("{")[2][:-1]
-        representation = combiner(representation, rl_gen_det(i))
+        r1 = gen_det(i)
+        q1 = r1.split("{")[2][:-1]
+        r2 = rl_gen_det(i)
+        representation = combiner(r1, r2)
         q2 = "p0"
         record("Test_01_B", "LR_DS_{}".format(i), representation, q1, set(), q2, repetitions)
         output_file = open("Benchmarks_2.csv", "a")
-        result, time = deq(representation, representation, repetitions)
+        result, time = deq(r1, r2, repetitions)
         output_file.write(",{},{:.16f}\n".format(result, float(time)))
         output_file.close()
 
     # Test_01_C - RL Deterministic Stacks
     for i in range(start, size, steps):
-        representation = rl_gen_det(i)
-        q1 = representation.split("{")[2][:-1]
-        representation = combiner(representation, representation)
+        r1 = rl_gen_det(i)
+        q1 = r1.split("{")[2][:-1]
+        representation = combiner(r1, r1)
         q2 = "p0"
         record("Test_01_C", "RL_DS_{}".format(i), representation, q1, set(), q2, repetitions)
         output_file = open("Benchmarks_2.csv", "a")
-        result, time = deq(representation, representation, repetitions)
+        result, time = deq(r1, r1, repetitions)
         output_file.write(",{},{:.16f}\n".format(result, float(time)))
         output_file.close()
 
@@ -342,20 +344,23 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
         record("Test_01_F", "CPT_{}".format(i), representation, q1, set(), q2, repetitions)
 
         output_file = open("Benchmarks_2.csv", "a")
-        result, time = deq(representation, representation, repetitions)
-        output_file.write(",{},{:.16f}\n".format(result, float(time)))
+        output_file.write(",NA,NA\n")
         output_file.close()
+
 
     # Test 01_F - Flower
     for i in range(start, size, steps):
-        representation = gen_flw(i)
-        q1 = representation.split("{")[2][:-1]
+        r1 = gen_flw(i)
+        q1 = r1.split("{")[2][:-1]
+        representation = combiner(r1, r1)
         q2 = q1.replace("q", "p")
         record("Test_01_G", "FLW_{}".format(i), representation, q1, set(), q2, repetitions)
 
         output_file = open("Benchmarks_2.csv", "a")
-        output_file.write(",NA,NA\n")
+        result, time = deq(representation, representation, repetitions)
+        output_file.write(",{},{:.16f}\n".format(result, float(time)))
         output_file.close()
+
 
     # Test 01_G - Clique
     for i in range(start, size, steps):
@@ -511,8 +516,7 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
         record("Test_03_F", "CPT_{}".format(i), representation, q1, set(), q2, repetitions)
 
         output_file = open("Benchmarks_2.csv", "a")
-        result, time = deq(r1, r2, repetitions)
-        output_file.write(",{},{:.16f}\n".format(result, float(time)))
+        output_file.write(",NA,NA\n")
         output_file.close()
 
     # Test 03_G - Clique
@@ -583,17 +587,8 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
 
 
 if __name__ == '__main__':
-    # r1 = gen_ndet(50)
-    # q1 = r1.split("{")[2][:-1]
-    # r2 = gen_ndet(100)
-    # q2 = r2.split("{")[2][:-1].replace("q", "p")
-    # representation = combiner(r1, r2)
-    # for _ in range(1):
-    #     record("CUSTOM", "CUTSTOM", representation, q1, set(), q2)
-    # deq(None, None)
-    # benchmarks(size=11, repetitions=3, start=1, steps=1)
+    # r1 = gen_det(1)
+    # r2 = gen_det(1)
+    # rep = combiner(r1, r2)
+    # print(deq(r1, r1, 1))
     benchmarks(size=201, repetitions=3, start=10, steps=10)
-    # record("Custom", "F", gen_ndet(10), "q0", set(), "q0")
-    # representation = gen_det(100)
-    # q1 = representation.split("{")[2][:-1]
-    # record("EXXX/Test_01_B/", "LR_DS_{}".format(100), representation, q1, set(), q1)

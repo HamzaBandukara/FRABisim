@@ -25,7 +25,7 @@ def generate(size: int) -> str:
     for i in range(1, size + 1):
         for tag in [f"t{x}" for x in range(1, size+1)]:
             transitions += "(q0,{},{},K,q0)".format(tag, i)
-        transitions += "(q0,{},{},L,q0)".format(f"t{i}", i)
+        transitions += "(q0,{},{},G,q0)".format(f"t{i}", i)
     automaton = "{" + "{}|{}|{}|{}|{}".format(states, initial, registers, transitions, finals).replace("|", "}{") + "}"
     return automaton
 
