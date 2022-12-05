@@ -75,3 +75,15 @@ def ra_to_xml(text: str):
 #     for line in ra:
 #         f.write(line)
 
+if __name__ == '__main__':
+    from RAGen.FlowerGenerator import generate as flw
+    from RAGen.Generator import generate_stack as st
+    from RAGen.RLGenerator import generate_stack as ts
+    ra1 = ra_to_xml(st(5))
+    ra2 = ra_to_xml(ts(5))
+    with open("xml_1.xml", "w") as f:
+        for line in ra1:
+            f.write(line)
+    with open("xml_2.xml","w") as f:
+        for line in ra2:
+            f.write(line)

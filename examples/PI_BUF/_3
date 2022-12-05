@@ -1,0 +1,7 @@
+B(a,b)=$c.(A(a,c)|$d.(A(c,d)|A(d,b)))
+C(a,b)=a(c).D(a,b,c)
+D(a,b,c)=(a(d).E(a,b,c,d)+b<c>.C(a,b))
+E(a,b,c,d)=(a(e).F(a,b,c,d,e)+b<c>.D(a,b,d))
+F(a,b,c,d,e)=b<c>.E(a,b,d,e)
+A(i,o)=i(x).o<x>.A(i,o)
+TEST B(a,b) WITH C(a,b)

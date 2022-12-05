@@ -122,7 +122,7 @@ class GeneratingSystem:
         sigma_q = part.get_sigma(q)
         part_p = p2
         sigma_p = part_p.get_sigma(p)
-        sigma_hat = sigma_q * sigma * (~sigma_p)
+        sigma_hat = (sigma_q * sigma) * (~sigma_p)
         if self.same_set(p, q):
             if set(sigma_hat.get_domain()) == set(part.Xc):
                 # Case 1a
@@ -130,6 +130,7 @@ class GeneratingSystem:
                 part.add_sigma(sigma_hat)
                 GeneratingSystem.UMEMO[(p1, p2, q, sigma, p)] = part
                 return
+            part_p = None
             # Case 1b
             # print("CASE 1B")sig
             I = set(part.get_Gc())
@@ -235,9 +236,12 @@ class GeneratingSystem:
         return set(vertices) - marked
 
     def __str__(self):
+        printed = set()
         s = "Generating System:"
         for p in self.partition_dict.values():
-            s += "\n- {}".format(str(p))
+            if p not in printed:
+                printed.add(p)
+                s += "\n- {}".format(str(p))
         return s
 
     def same_set(self, p, q):

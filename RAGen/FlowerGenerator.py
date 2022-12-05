@@ -47,15 +47,15 @@ def generate(size: int):
         registers += ")"
     states = states[:-1]
     for i in range(size):
-        transitions += "({},{},{},G,{})".format(f"q{i}", "t0", i+1, f"q{i+1}")
+        transitions += "({},{},{},L,{})".format(f"q{i}", "t0", i+1, f"q{i+1}")
         for j in range(1, i + 2):
             if i == size-1: break
             transitions += "({},{},{},K,{})".format(f"q{i+1}", "t0", j, f"q{i+1}")
     f = f"q{size}"
-    for tag in ("t1", "t2", "t3"):
+    for tag in ("t{}".format(i) for i in range(1, size+1)):
         for i in range(1, size+1):
             transitions += "({},{},{},K,{})".format(f, tag, i, f)
-            transitions += "({},{},{},G,{})".format(f, tag, i, f)
+            transitions += "({},{},{},L,{})".format(f, tag, i, f)
     automaton = "{" + "{}|{}|{}|{}|{}".format(states, initial, registers, transitions, finals).replace("|", "}{") + "}"
     return automaton
 

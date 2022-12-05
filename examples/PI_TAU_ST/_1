@@ -1,0 +1,7 @@
+C(c)=((c(d).[d#c]c<c>.D(c,d)))
+D(c,d)=$a.(a<c>.0|a(c).E(c,d))
+E(c,d)=((c<d>.C(c)))
+H(c)=((c(d).[d#c]c<c>.I(c,d)))
+I(c,d)=$a.(a<c>.0|a(c).J(c,d))
+J(c,d)=((c<d>.H(c)))
+TEST C(c) WITH H(c)

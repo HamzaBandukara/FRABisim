@@ -43,7 +43,6 @@ def g_push(g, prev, p_next):
     prev.append(c_next)
     return s
 
-
 def g_pop(p, prev):
     c_current = prev[-1]
     t = (f"[{c_current}#{'{}'}]" * (len(prev) - 1)).format(*prev[:-1])
@@ -66,6 +65,108 @@ def g_cptpop(prev, next_process):
         s += f"({prev[0]}<{c}>.{next_process}) + "
     return s[:-3]
 
+def buffer_builder(size=2):
+    def lex(max_length: int = -1, alphabet=string.ascii_uppercase):
+        if max_length == 0: return
+        for first in alphabet:
+            yield first
+        for first in alphabet:
+            for suffix in lexstrings(max_length - 1, alphabet=alphabet):
+                yield first + suffix
+    c_names = lex(-1, alphabet=string.ascii_lowercase)
+    p_names = lex()
+    next(p_names)
+    c_prev = [next(c_names) for _ in range(size + 2)]
+    p_prev = [next(p_names), next(p_names)]
+    # buf1 = next(p_names)
+    final_string = ""
+    p = [
+        f"{p_prev[0]}(i,o)",
+        f"{p_prev[1]}(i,o)"
+    ]
+    proc = f"{p_prev[0]}({c_prev[0]},{c_prev[1]})="
+    for i in range(2, 1+size):
+        proc += f"${c_prev[i]}.("
+        if i == 2:
+            proc += f"A({c_prev[0]},{c_prev[i]})|"
+        else:
+            proc += f"A({c_prev[i-1]},{c_prev[i]})|"
+    proc += f"A({c_prev[size]},{c_prev[1]})"
+    for i in range(2,1+size):
+        proc += ")"
+    final_string += proc + "\n"
+    for i in range(2,size+3):
+        f_string = "{}"
+        procs = []
+        if 2 < i < size + 2:
+            f_string = "({}+{})"
+        proc = f"{p_prev[-1]}("
+        for j in range(i):
+            proc += c_prev[j] + ","
+        proc = proc[:-1] + ")="
+        f_string = proc + f_string + "\n"
+        next_proc = None
+        if i < size + 2:
+            proc = ""
+            proc += f"{c_prev[0]}({c_prev[i]})."
+            next_proc = next(p_names)
+            proc += f"{next_proc}("
+            for j in range(i + 1):
+                proc += c_prev[j] + ","
+            proc = proc[:-1] + ")"
+            procs.append(proc)
+        if i > 2:
+            proc = ""
+            proc += f"{c_prev[1]}<{c_prev[2]}>.{p_prev[-2]}("
+            for j in range(i):
+                if j == 2: continue
+                proc += c_prev[j] + ","
+            proc = proc[:-1] + ")"
+            procs.append(proc)
+        f_string = f_string.format(*procs)
+        if next_proc is not None:
+            p_prev.append(next_proc)
+        final_string += f_string
+    final_string = final_string + "A(i,o)=i(x).o<x>.A(i,o)\nTEST B(a,b) WITH C(a,b)"
+    final_string = final_string.rstrip()
+    return final_string
+
+
+
+
+def tau_stack_builder(size=2, p_names=lexstrings(), c_names=None, p=None):
+    if c_names is None:
+        c_names = lexstrings(-1, alphabet=string.ascii_lowercase)
+        next(c_names)
+        next(c_names)
+    final_string = ""
+    c_prev = [next(c_names)]
+    # c_prev = [next(c_names), next(c_names)]
+    original_size = size
+    next(p_names), next(p_names)
+    p_next = next(p_names)
+    p_current = p_next
+    while size >= 0:
+        p_prev = p_current
+        p_current = p_next
+        definition = p_current + "(" + ("{}," * len(c_prev)).format(*c_prev)[:-1] + ") = "
+        deef = ""
+        extra = ""
+        if size != original_size:
+            deef += g_pop(p_prev, c_prev)
+        if size != 0 and size != original_size:
+            deef += " + "
+        if size != 0:
+            p_next = next(p_names)
+            deef += g_push(c_names, c_prev, p_next)
+            p_old = p_next
+            p_next = next(p_names)
+            extra = p_old + "(" + ("{}," * len(c_prev))[:-1].format(*c_prev) + f")=$a.(a<{c_prev[0]}>.0|a({c_prev[0]}).{p_next}(" + ("{}," * len(c_prev))[:-1].format(*c_prev) + "))\n"
+        definition += "(" + deef + ")"
+        final_string += definition + "\n" + extra
+        size -= 1
+    return final_string
+
 
 def stack_builder(size=2, p_names=lexstrings(), c_names=None, p=None):
     if c_names is None:
@@ -73,7 +174,8 @@ def stack_builder(size=2, p_names=lexstrings(), c_names=None, p=None):
         next(c_names)
         next(c_names)
     final_string = ""
-    c_prev = [next(lexstrings(-1, alphabet=string.ascii_lowercase))]
+    c_prev = [next(c_names)]
+    # c_prev = [next(lexstrings(-1, alphabet=string.ascii_lowercase))]
     # c_prev = [next(c_names), next(c_names)]
     original_size = size
     next(p_names), next(p_names)
@@ -124,7 +226,6 @@ def queue_builder(size=2, p_names=lexstrings(), p=None):
         size -= 1
     return final_string
 
-
 def cpt_builder(size=2, p_names=lexstrings(), p=None):
     c_names = lexstrings(-1, alphabet=string.ascii_lowercase)
     final_string = ""
@@ -152,6 +253,42 @@ def cpt_builder(size=2, p_names=lexstrings(), p=None):
         # if size == 0:
         #     definition += "+"+g_cpt_populate(c_prev, p_current, c_names, next(c_names))
         final_string += definition + "\n"
+        size -= 1
+    return final_string
+
+def tau_cpt_builder(size=2, p_names=lexstrings(), p=None):
+    c_names = lexstrings(-1, alphabet=string.ascii_lowercase)
+    next(c_names)
+    next(c_names)
+    final_string = ""
+    c_prev = [next(c_names)]
+    original_size = size
+    next(p_names), next(p_names)
+    p_next = next(p_names)
+    p_current = p_next
+    while size >= 0:
+        extra = ""
+        p_prev = p_current
+        p_current = p_next
+        definition = p_current + "(" + ("{}," * len(c_prev)).format(*c_prev)[:-1] + ") = "
+        if size != original_size:
+            if size != 0:
+                next_process = p_next
+            else:
+                next_process = p_current
+            next_process += "(" + ("{}," * len(c_prev))[:-1].format(*c_prev) + ")"
+            definition += g_cptpop(c_prev, next_process)
+        if size != 0 and size != original_size:
+            definition += " + "
+        if size != 0:
+            p_next = next(p_names)
+            definition += f"({g_push(c_names, c_prev, p_next)})"
+            p_old = p_next
+            p_next = next(p_names)
+            extra = p_old + "(" + ("{}," * len(c_prev)).format(*c_prev) + f"b)=$a.(a<b>.0|a(b).{p_next}(" + ("{}," * len(c_prev))[:-1].format(*c_prev) + "))\n"
+        # if size == 0:
+        #     definition += "+"+g_cpt_populate(c_prev, p_current, c_names, next(c_names))
+        final_string += definition + "\n" + extra
         size -= 1
     return final_string
 
@@ -233,6 +370,14 @@ def piet_gen(gen1, size1, gen2, size2, tmp):
     return lines
 
 if __name__ == '__main__':
-    from pibisim import pi_bisim as bisim
-    for i in range(1, 11):
-        print(bisim(gen(i, cpt_builder),gen(i, cpt_builder)))
+    size = 1
+    lines = ""
+    procs = []
+    for _ in range(2):
+        x = tau_stack_builder(size).replace(" ", "")
+        procs.append(x.split("\n")[0].split("=")[0])
+        lines += x
+    lines += f"TEST {procs[0]} WITH {procs[1]}"
+    with open("./examples/PI_TAU_ST/_{}".format(size), "w") as f:
+        f.write(lines)
+

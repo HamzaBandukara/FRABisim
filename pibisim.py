@@ -33,17 +33,23 @@ def mwb_bisim(process1, process2):
     return b"The two agents are equal" in out
 
 
-def piet_bisim(lines):
+def piet_bisim(lines, type="see"):
     with open("piet_input", "w", newline="\n") as f:
         f.write(lines)
-    cmd = "./piet see 500000 piet_input cmp"
-    args = ["./piet", "see", "500000", "piet_input", "cmp"]
+    cmd = f"./piet {type} 500000 piet_input cmp"
+    args = ["./piet", type, "500000", "piet_input", "cmp"]
     if os.name == 'nt':
         args.insert(0, "wsl")
         cmd = "wsl " + cmd
-    p1 = os.popen(cmd)
+    # p1 = os.popen(cmd)
+    try:
+        x = str(subprocess.check_output(args, stderr=subprocess.STDOUT, timeout=60))
+    except subprocess.TimeoutExpired:
+        return None, 60000
+    x = x.replace("'", "").replace("b", "")
+    x = x.split("\\n")
     # p1 = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-    x = p1.readlines()
+    # x = p1.readlines()
     # try:
     #     p1 = subprocess.run(args, capture_output=True, timeout=30)
     # except subprocess.TimeoutExpired:
@@ -62,7 +68,7 @@ def piet_bisim(lines):
         b = True
     x[2] = x[2].split(" ")
     try:
-        t = (int(x[2][2])) + (float(x[2][4]) / 100)
+        t = (int(x[2][2]) * 1000) + (float(x[2][4]) * 10)
     except IndexError:
         print(x)
         raise Exception("FAILED PiET")

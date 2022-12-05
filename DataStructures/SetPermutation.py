@@ -200,7 +200,7 @@ class PartialPermutation(SetPermutation):
         #     pi = [b[i] for i in a] + b[len(a):]
         targets = set(self.image).intersection(set(other.domain))
         # domain = [k for k, v in self.dict_form.items() if v in targets]
-        tuples = {(self.domain[i], self.image[i]) for i in range(len(self.image)) if self.image[i] in targets}
+        tuples = {(self.domain[i], other.get(self.image[i])) for i in range(len(self.image)) if self.image[i] in targets}
         # for i in range(len(self.image)):
         #     if self.image[i] in targets:
         #         domain.append(self.domain[i])

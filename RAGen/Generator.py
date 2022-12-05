@@ -25,7 +25,7 @@ def generate_stack(registers: int)  -> str:
     # Transitions
     RA += "{"
     for r in range(1, registers + 1):
-        RA += "(q{},push,{},G,q{})".format(r-1, r, r)
+        RA += "(q{},push,{},L,q{})".format(r-1, r, r)
         RA += "(q{},pop,{},K,q{})".format(r, r, r-1)
     RA += "}{}"
 

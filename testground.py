@@ -143,24 +143,49 @@ def to_graph(t_df, test_code, lois):
     g.legend(handles=handles, labels=labels)
     plt.subplots_adjust(right=0.99, left=0.15, top=0.95)
     plt.legend(loc='lower right')
-    plt.savefig(f"./ATVA/{test_code}.eps", format='eps')
+    plt.savefig(f"./SETTA/{test_code}.eps", format='eps')
     plt.show()
 
-df1 = pd.read_csv("./Benchmarks/Benchmarks_small03052022.csv")
-# pd.set_option('display.precision', 4)
-df2 = pd.read_csv("./Benchmarks/Benchmarks_03052022.csv")
-df2 = df2.drop(labels=["Memo"], axis=1)
+# df1 = pd.read_csv("./Benchmarks/Benchmarks_small03052022.csv")
+# # pd.set_option('display.precision', 4)
+# df2 = pd.read_csv("./Benchmarks/Benchmarks_03052022.csv")
+# df2 = df2.drop(labels=["Memo"], axis=1)
+# d1 = {k: k for k in df1}
+# d2 = {k: k for k in df2}
+# d1["DEQ-Time"] = "DEQ"
+# d2["DEQ-Time"] = "DEQ"
+# d2["Gen2"] = "Generator"
+# d1["LOIS PR Time"] = "LOIS PR"
+# d1["LOIS FW Time"] = "LOIS FW"
+# df1 = df1.rename(columns=d1)
+# df2 = df2.rename(columns=d2)
+# frames = [df1, df2]
+# df3 = pd.concat(frames)
+# df3["Size"] = df3.apply(lambda row: convert_row(row), axis=1)
+# df3 = df3.sort_values(["TestCode", "Size"])
+# # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+# #     print(df3)
+# # print([x for x in df1])
+# # df1 = df1.drop(axis=1,labels=["States", "Transitions", "DEQ-Result", "LOIS FW Result", "LOIS PR Result", "Exception"])
+# # print([x for x in df1])
+# # df1 = df1.Base.apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x))))) if x != 0 else 0)
+# # print(df1.to_latex())
+# # df2 = df2.drop(axis=1, labels=["States", "Transitions", "DEQ-Result", "Exception"])
+# # print([x for x in df2])
+# # print(df2.to_latex())
+# to_graph(df3, ["Test_01_B"], True)
+# # to_graph(df3, ["Test_01_G", "Test_01_D"], False)
+# # to_graph(df3, ["Test_01_F", "Test_02_H"], False)
+
+
+df1 = pd.read_csv("./Benchmarks_SETTA.csv")
 d1 = {k: k for k in df1}
-d2 = {k: k for k in df2}
 d1["DEQ-Time"] = "DEQ"
-d2["DEQ-Time"] = "DEQ"
-d2["Gen2"] = "Generator"
 d1["LOIS PR Time"] = "LOIS PR"
 d1["LOIS FW Time"] = "LOIS FW"
+d1["Memo"] = "Base"
 df1 = df1.rename(columns=d1)
-df2 = df2.rename(columns=d2)
-frames = [df1, df2]
-df3 = pd.concat(frames)
+df3 = df1
 df3["Size"] = df3.apply(lambda row: convert_row(row), axis=1)
 df3 = df3.sort_values(["TestCode", "Size"])
 # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
@@ -173,6 +198,6 @@ df3 = df3.sort_values(["TestCode", "Size"])
 # df2 = df2.drop(axis=1, labels=["States", "Transitions", "DEQ-Result", "Exception"])
 # print([x for x in df2])
 # print(df2.to_latex())
-to_graph(df3, ["Test_01_B"], True)
+# to_graph(df3, ["Test_01_B"], True)
 # to_graph(df3, ["Test_01_G", "Test_01_D"], False)
-# to_graph(df3, ["Test_01_F", "Test_02_H"], False)
+to_graph(df3, ["Test_01_F", "Test_02_H"], False)

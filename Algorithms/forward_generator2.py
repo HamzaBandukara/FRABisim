@@ -16,7 +16,7 @@ from copy import deepcopy as cp
 STATS_CALLS = 0
 STATS_NEWCALLS = 0
 STATS_STATESPACE = set()
-FLAG_DEBUG = False
+FLAG_DEBUG = True
 FLAG_CHK_TAGS = True
 CHKED_TAGS = {}
 
@@ -43,7 +43,6 @@ def bisim_ok(G, RA, q1, sigma, q2, not_bisim):
         # print("NOT_MEMBER: ", q1, sigma, q2)
         return False
     if G.is_member(q1, sigma, q2):
-        # print("IS_MEMBER: ", q1, sigma, q2)
         return True
     global STATS_NEWCALLS
     STATS_NEWCALLS += 1
@@ -56,12 +55,6 @@ def bisim_ok(G, RA, q1, sigma, q2, not_bisim):
         return False
     state = G.get_state()
     G.update(q1, sigma, q2)
-    # if G.check_inconsistency(not_bisim):
-    #     G.set(state)
-        # print("Happened")
-        # not_bisim.update(q1, sigma, q2)
-        # not_bisim.update(q2, ~sigma, q1)
-        # return False
     if simulate(q1, sigma, q2, RA, G, not_bisim):
         if simulate(q2, ~sigma, q1, RA, G, not_bisim):
             return True
@@ -195,6 +188,7 @@ def forward(RA: RegisterAutomata, q1: str, q2: str, sigma: set, stats=False):
     not_bisim = SymmetricDownSet(G)
     db_print("\nTESTING: ", q1, sigma, q2,"\nfor A: ",RA,"\nwith G: ",G,"\nand ~G:",not_bisim)
     result = bisim_ok(G, RA, q1, sigma, q2, not_bisim)
+    # print(G)
     if stats:
         bisim = G
         if not result:
@@ -209,8 +203,8 @@ def ra_bisim(RA, q1, q2, sigma=set()):
 if __name__ == '__main__':
     import sys
     sys.setrecursionlimit(500000)
-    ra = cpt(1)
-    ra2 = cpt(1)
+    ra = flw(2)
+    ra2 = flw(2)
     t = dt.now()
     ra = RegisterAutomata(combiner(ra, ra2))
     print("T: ", (dt.now() - t).total_seconds())
