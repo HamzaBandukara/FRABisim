@@ -1,0 +1,6 @@
+P(s,crash,pub)=$req.s<req>.s(res).([res#crash]0+[res=crash]s<req>.s(res2).0)
+Q(s,crash,pub)=s(req).$res.(s<res>.0+s<crash>.0)
+R(s,crash,pub)=s(status).([status#crash]0+[status=crash]s(req).$res.s<res>.0)
+RUN(crash,pub)=$s.(P(s,crash,pub)|(Q(s,crash,pub)|R(s,crash,pub)))
+ZERO()=0
+TEST RUN(crash,pub) WITH ZERO()

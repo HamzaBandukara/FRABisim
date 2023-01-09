@@ -1,0 +1,3 @@
+EMPTY()=$s.($a.s<a>.0|s(a).0)
+ZERO()=0
+TEST EMPTY() WITH ZERO()

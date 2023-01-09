@@ -1,0 +1,11 @@
+AGENT PA(s,m1ca,m2ca,m1ab,m2ab,bool,int):=(s<m1ab>.s<int>.s(t1).([t1=m1ca]s(val).PA(s,m1ca,m2ca,m1ab,m2ab,bool,int)+[t1=m2ca]s(val).PA(s,m1ca,m2ca,m1ab,m2ab,bool,int))+s<m2ab>.s<bool>.s(t1).([t1=m1ca]s(val).PA(s,m1ca,m2ca,m1ab,m2ab,bool,int)+[t1=m2ca]s(val).PA(s,m1ca,m2ca,m1ab,m2ab,bool,int)));
+AGENT PB(s,m1ab,m2ab,m1bc,m2bc,bool,int):=s(t1).([t1=m1ab]s(val).s<m1bc>.s<val>.PB(s,m1ab,m2ab,m1bc,m2bc,bool,int)+[t1=m2ab]s(val).s<m2bc>.s<val>.PB(s,m1ab,m2ab,m1bc,m2bc,bool,int));
+AGENT PC(s,m1bc,m2bc,m1ca,m2ca,bool,int):=s(t1).([t1=m1bc]s(val).(s<m1ca>.s<int>.PC(s,m1bc,m2bc,m1ca,m2ca,bool,int)+s<m2ca>.s<bool>.PC(s,m1bc,m2bc,m1ca,m2ca,bool,int))+[t1=m2bc]s(val).(s<m1ca>.s<int>.PC(s,m1bc,m2bc,m1ca,m2ca,bool,int)+s<m2ca>.s<bool>.PC(s,m1bc,m2bc,m1ca,m2ca,bool,int)));
+AGENT CA(sa,m1ca,m2ca,m1ab,m2ab,iab,ica,pa,bool,int):=sa(t1).[t1=pa]sa(s).s(t2).[t2=ica]s(str).s<iab>.s<str>.PA(s,m1ca,m2ca,m1ab,m2ab,bool,int);
+AGENT CB(sb,m1ab,m2ab,m1bc,m2bc,ibc,iab,pb,bool,int):=sb(t1).[t1=pb]sb(s).^str s<ibc>.s<str>.s(t2).[t2=iab]s(str).PB(s,m1ab,m2ab,m1bc,m2bc,bool,int);
+AGENT CC(sc,m1bc,m2bc,m1ca,m2ca,ica,ibc,pc,bool,int):=sc(t1).[t1=pc]sc(s).s(t2).[t2=ibc]s(str).s<ica>.s<str>.PC(s,m1bc,m2bc,m1ca,m2ca,bool,int);
+AGENT Q(pa,pb,pc,sa,sb,sc):=^s (sa<pa>.sa<s>.0|(sb<pb>.sb<s>.0|sc<pc>.sc<s>.0));
+AGENT RUN(pa,pb,pc,m1ab,m2ab,m1bc,m2bc,m1ca,m2ca,iab,ibc,ica,bool,int):=^sa ^sb ^sc (Q(pa,pb,pc,sa,sb,sc)|(CA(sa,m1ca,m2ca,m1ab,m2ab,iab,ica,pa,bool,int)|(CB(sb,m1ab,m2ab,m1bc,m2bc,ibc,iab,pb,bool,int)|CC(sc,m1bc,m2bc,m1ca,m2ca,ica,ibc,pc,bool,int))));
+AGENT ZERO():=0;
+TEST RUN(pa,pb,pc,m1ab,m2ab,m1bc,m2bc,m1ca,m2ca,iab,ibc,ica,bool,int)
+WITH ZERO();;

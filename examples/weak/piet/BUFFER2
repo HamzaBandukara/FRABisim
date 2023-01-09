@@ -1,0 +1,5 @@
+AGENT B(a,b):=^c (A(a,c)|A(c,b));
+AGENT A(i,o):=i(x).o<x>.A(i,o);
+AGENT ZERO():=0;
+TEST B(a,b)
+WITH ZERO();;

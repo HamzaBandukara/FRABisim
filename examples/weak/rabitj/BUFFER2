@@ -1,0 +1,4 @@
+B(a,b)=$c.(A(a,c)|A(c,b))
+A(i,o)=i(x).o<x>.A(i,o)
+ZERO()=0
+TEST B(a,b) WITH ZERO()

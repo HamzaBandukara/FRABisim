@@ -1,0 +1,3 @@
+PR(p,q,true,false,pos,neg,suc,err,cont,stop,null,c42)=p(msg).([msg=suc]p(x).([x=pos]q<cont>.q<x>.0 + [x=neg]q<stop>.q<null>.0) + [msg=err]p(fatal).([fatal=false]q<cont>.q<c42>.0+[fatal=true]q<stop>.q<null>.0))
+ZERO()=0
+TEST PR(p,q,true,false,pos,neg,suc,err,cont,stop,null,c42) WITH ZERO()
