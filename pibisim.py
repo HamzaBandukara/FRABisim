@@ -113,23 +113,26 @@ def piet_lines(process_1, process_2):
     print(piet_bisim(ret))
 
 def pi_bisim(process_1, process_2, par=None):
-    proc_1 = parse(process_1)
-    proc_2 = parse(process_2)
     pyfra_t = time.process_time_ns()
+    proc_1 = parse(process_1)
     re1, reg, root1 = proc_1.buildLTS()
     i1, ra = Process.gen_FRA(lambda k, v: (k in re1 and v.size > 0), r=root1)
+    abc = len(Process.lts)
     Process.lts = {}
 
     if not process_2 is None:
+        proc_2 = parse(process_2)
         re2, reg2, root2 = proc_2.buildLTS()
         reg = reg.union(reg2)
         i2, ra = Process.gen_FRA(lambda k, v: (k in re2 and v.size > 0), ra, r=root2)
+        abc += len(Process.lts)
         q1 = "q0"
     else:
         i2, root2 = i1, root1
         q1 = "s0"
     pyfra_t = time.process_time_ns() - pyfra_t
     pyfra_t /= (10 ** 9)
+    print("Trans: " + str(abc))
     ra.r_map = reg
     ra.registers = list(ra.r_map)
     mapper = set()
@@ -137,6 +140,7 @@ def pi_bisim(process_1, process_2, par=None):
         if key in i2:
             mapper.add((i1[key], i2[key]))
     # ra.print_transitions()
+    print(len(ra.transitions))
     bis_t = time.process_time_ns()
     result = fwd(ra, "s0", q1, mapper)
     bis_t = time.process_time_ns() - bis_t
@@ -174,12 +178,12 @@ if __name__ == '__main__':
     # print(x)
     # print(y)
     t1, t2 = [], []
-    for i in range(3):
-        x = pi_bisim(cpt(50), cpt(50))
+    for i in range(1):
+        x = pi_bisim(stack(50), stack(50))
         print(x[0], x[1])
-        t1.append(x[0])
-        t2.append(x[1])
-    print((sum(t1)/3) + (sum(t2)/3))
+    #     t1.append(x[0])
+    #     t2.append(x[1])
+    # print((sum(t1)/3) + (sum(t2)/3))
 
     # x = queue(2)
     # print(x)

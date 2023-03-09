@@ -16,7 +16,7 @@ from copy import deepcopy as cp
 STATS_CALLS = 0
 STATS_NEWCALLS = 0
 STATS_STATESPACE = set()
-FLAG_DEBUG = True
+FLAG_DEBUG = False
 FLAG_CHK_TAGS = True
 CHKED_TAGS = {}
 
@@ -203,8 +203,8 @@ def ra_bisim(RA, q1, q2, sigma=set()):
 if __name__ == '__main__':
     import sys
     sys.setrecursionlimit(500000)
-    ra = flw(2)
-    ra2 = flw(2)
+    ra = det(200)
+    ra2 = det(200)
     t = dt.now()
     ra = RegisterAutomata(combiner(ra, ra2))
     print("T: ", (dt.now() - t).total_seconds())

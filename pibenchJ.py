@@ -1,6 +1,8 @@
 # Dependencies
 import multiprocessing
 import os
+import statistics
+import subprocess
 import sys
 # from time import time
 import time
@@ -25,55 +27,54 @@ from pibisim import piet_bisim as piet
 from pibisim import pi_bisim as fwd_pi
 
 
-def method_wrapper(tmp, process):
-    tmp.extend(fwd_pi(*process))
-
-def piet_wrapper(tmp, process):
-    print("Starting")
-    tmp.append(None)
-    tmp.append(30)
-
-    tmp[0], tmp[1] = piet(process)
-
-def single_time_test(gen_1, gen_2, size1, size2, isgen=False, tmp=None):
+def single_time_test(m1, m2, s1, s2, isgen=False):
     sys.setrecursionlimit(5000000)
     alpha = string.ascii_uppercase
     generator = lexstrings(alphabet=alpha)
     if isgen:
-        process_1 = gen(size1, gen_1, "A")
-        process_2 = gen(size2, gen_2, "B")
+        pi_1 = gen(s1, m1, "A")
+        pi_2 = gen(s2, m2, "B")
     else:
-        process_1 = gen_1(size1, generator, p="A")
-        process_2 = gen_2(size2, generator, p="B")
-    if tmp is None:
-        manager = multiprocessing.Manager()
-        tmp = manager.list()
-    else:
-        while len(tmp) > 0: tmp.pop()
-    p = multiprocessing.Process(target=method_wrapper, args=(tmp, [process_1, process_2]))
-    p.start()
-    p.join(30)
-    if p.is_alive():
-        p.terminate()
+        pi_1 = m1(s1)
+        pi_2 = m2(s2)
+    pi_1 = pi_1.split("\n")
+    pi_2 = pi_2.split("\n")
+    root_1, root_2 = pi_1[0].replace(" ","").split("=")[0], pi_2[0].replace(" ","").split("=")[0]
+    f = open("./tmp.pi", "w")
+    for line in pi_1:
+        line = line.replace("\n", "")
+        f.write(line + "\n")
+    for line in pi_2:
+        line = line.replace("\n", "")
+        f.write(line + "\n")
+    f.write(f"TEST {root_1} WITH {root_2}")
+    f.close()
+    rb_res, rb_time, _ = rabitjrunner_pi("./tmp.pi")
+    print(rb_res, rb_time)
+    return rb_time / 1000, rb_res
+
+def rabitjrunner_pi(file):
+    times, results = [], []
     try:
-        py_time, fwd_time, fwd_res, piet_lines = tmp
-        if fwd_res is None:
-            py_time, fwd_time = 15, 15
+        x = str(subprocess.check_output(["java", "-jar", "./rabitj/rabit.jar", "-pi", file], stderr=subprocess.STDOUT, timeout=60))
+        x = x.replace("'", "").replace("b", "")
+        x = x.split(" ")
+        print(x)
+        times.append(float(x[1][:-4]))
+        results.append(False) if x[0] == "false" else results.append(True)
+    except subprocess.TimeoutExpired:
+        pass
+    if len(times) == 0 and len(results) == 0:
+        times.append(60 * 1000)
+        results.append(None)
+    time = sum(times) / len(times)
+    if time > 60000: time = 60000
+    assert len(set(results)) <= 1
+    try:
+        st = statistics.pstdev(times)
     except:
-        py_time, fwd_time, fwd_res, piet_lines = 15, 15, None, piet_gen(gen_1, size1, gen_2, size2, tmp)
-    while tmp.__len__() > 0: tmp.pop()
-    # manager = multiprocessing.Manager()
-    piet_res, piet_time = None, 30
-    try:
-        if fwd_res is not None and piet_res is not None:
-            assert piet_res == fwd_res
-    except AssertionError:
-        print("EXPERIMENT FAILED AT ^\nRESULTS: ",piet_res, fwd_res)
-        print(process_1)
-        print(process_2)
-        exit(5)
-    manager = None
-    return py_time, fwd_time, piet_time, fwd_res
+        st = -1
+    return results[0], time, st
 
 # def single_time_test(gen_1, gen_2, size1, size2, isgen=False, tmp=None):
 #     sys.setrecursionlimit(5000000)
@@ -140,12 +141,13 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
     tmp = multiprocessing.Manager().list()
     # if not os.path.exists("./Benchmarks"):
     #     os.mkdir("./Benchmarks")
-    file = "./Benchmarks/null.csv"
+    file = "./Benchmarks/pibench_extra.csv"
     output_file = open(file, "w")
-    output_file.write("P1Type,P1Size,P2Type,P2Size,pyfra,fwd,fwd_py,piet,Result\n")
+    output_file.write("P1Type,P1Size,P2Type,P2Size,RABiT,Result\n")
     output_file.close()
-    # timeout = 30
-    #
+    result=None
+    timeout = 30
+
     # Test 01 - Stack vs Stack (Same Size)
     for i in range(start, size + 1, steps):
         times_py, times_fwd, times_pi = [], [], []
@@ -153,48 +155,35 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
         for _ in range(repetitions):
             results = single_time_test(pi_stack, pi_stack, i, i)
             times_py.append(results[0])
-            times_fwd.append(results[1])
-            times_pi.append(results[2])
-            result = results[3]
+            result = results[1]
         py_time = sum(times_py) / len(times_py)
-        fwd_time = sum(times_fwd) / len(times_fwd)
-        pi_time = sum(times_pi) / len(times_pi)
         with open(file, "a") as f:
-            f.write(f"Stack,{i},Stack,{i},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
-    #
-    # # TEST 2 CPT
-    # for i in range(start, size + 1, steps):
-    #     times_py, times_fwd, times_pi = [], [], []
-    #     print("TESTING CC: ", i, i)
-    #     for _ in range(repetitions):
-    #         results = single_time_test(pi_cpt, pi_cpt, i, i)
-    #         times_py.append(results[0])
-    #         times_fwd.append(results[1])
-    #         times_pi.append(results[2])
-    #         result = results[3]
-    #     py_time = sum(times_py) / len(times_py)
-    #     fwd_time = sum(times_fwd) / len(times_fwd)
-    #     pi_time = sum(times_pi) / len(times_pi)
-    #     with open(file, "a") as f:
-    #         f.write(f"FLW,{i},FLW,{i},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
-    #
+            f.write(f"Stack,{i},Stack,{i},{py_time},{result}\n")
+
+    # TEST 2 CPT
+    for i in range(start, size + 1, steps):
+        times_py, times_fwd, times_pi = [], [], []
+        print("TESTING CC: ", i, i)
+        for _ in range(repetitions):
+            results = single_time_test(pi_cpt, pi_cpt, i, i)
+            times_py.append(results[0])
+            result = results[1]
+        py_time = sum(times_py) / len(times_py)
+        with open(file, "a") as f:
+            f.write(f"FLW,{i},FLW,{i},{py_time},{result}\n")
 
     # # TEST 3 Gen | Stack
-    # for i in range(5, size + 1, steps):
+    # for i in range(start, size + 1, steps):
     #     times_py, times_fwd, times_pi = [], [], []
-    #     print("TESTING QQ: ", i, i)
+    #     print("TESTING GG: ", i, i)
     #     for _ in range(repetitions):
-    #         results = single_time_test(pi_stack, pi_stack, i, i, True, tmp)
+    #         results = single_time_test(pi_stack, pi_stack, i, i, True)
     #         times_py.append(results[0])
-    #         times_fwd.append(results[1])
-    #         times_pi.append(results[2])
-    #         result = results[3]
+    #         result = results[1]
+    #         # exit(10)
     #     py_time = sum(times_py) / len(times_py)
-    #     fwd_time = sum(times_fwd) / len(times_fwd)
-    #     pi_time = sum(times_pi) / len(times_pi)
-    #     print(times_fwd, times_py)
     #     with open(file, "a") as f:
-    #         f.write(f"Gen|Stack,{i},Gen|Stack,{i},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
+    #         f.write(f"Gen|Stack,{i},Gen|Stack,{i},{py_time},{result}\n")
     #
     # # TEST 4 Gen | CPT
     # for i in range(start, size + 1, steps):
@@ -214,55 +203,42 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
     #         f.write(f"Gen|CPT,{i},Gen|CPT,{i},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
 
 
-    # # Test 01 - Stack n vs Stack n + 1
-    # for i in range(start, size + 1, steps):
-    #     times_py, times_fwd, times_pi = [], [], []
-    #     print("TESTING SS: ", i, i)
-    #     for _ in range(repetitions):
-    #         results = single_time_test(pi_stack, pi_stack, i, i + 1, tmp=tmp)
-    #         times_py.append(results[0])
-    #         times_fwd.append(results[1])
-    #         times_pi.append(results[2])
-    #         result = results[3]
-    #     py_time = sum(times_py) / len(times_py)
-    #     fwd_time = sum(times_fwd) / len(times_fwd)
-    #     pi_time = sum(times_pi) / len(times_pi)
-    #     with open(file, "a") as f:
-    #         f.write(f"Stack,{i},Stack,{i+1},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
-    #
-    # # Test 02 - CPT n vs CPT n + 1
-    # for i in range(start, size + 1, steps):
-    #     times_py, times_fwd, times_pi = [], [], []
-    #     print("TESTING CC: ", i, i)
-    #     for _ in range(repetitions):
-    #         results = single_time_test(pi_cpt, pi_cpt, i, i + 1, tmp=tmp)
-    #         times_py.append(results[0])
-    #         times_fwd.append(results[1])
-    #         times_pi.append(results[2])
-    #         result = results[3]
-    #     py_time = sum(times_py) / len(times_py)
-    #     fwd_time = sum(times_fwd) / len(times_fwd)
-    #     pi_time = sum(times_pi) / len(times_pi)
-    #     with open(file, "a") as f:
-    #         f.write(f"FLW,{i},FLW,{i+1},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
-    #
+    # Test 01 - Stack n vs Stack n + 1
+    for i in range(start, size + 1, steps):
+        times_py, times_fwd, times_pi = [], [], []
+        print("TESTING SS: ", i, i+1)
+        for _ in range(repetitions):
+            results = single_time_test(pi_stack, pi_stack, i, i + 1)
+            times_py.append(results[0])
+            result = results[1]
+        py_time = sum(times_py) / len(times_py)
+        with open(file, "a") as f:
+            f.write(f"Stack,{i},Stack,{i+1},{py_time},{result}\n")
+
+    # Test 02 - CPT n vs CPT n + 1
+    for i in range(start, size + 1, steps):
+        times_py, times_fwd, times_pi = [], [], []
+        print("TESTING CC: ", i, i+1)
+        for _ in range(repetitions):
+            results = single_time_test(pi_cpt, pi_cpt, i, i + 1)
+            times_py.append(results[0])
+            result = results[1]
+        py_time = sum(times_py) / len(times_py)
+        with open(file, "a") as f:
+            f.write(f"FLW,{i},FLW,{i+1},{py_time},{result}\n")
+
 
     # # TEST 3 Gen | Stack
     # for i in range(start, size + 1, steps):
     #     times_py, times_fwd, times_pi = [], [], []
-    #     print("TESTING QQ: ", i, i)
+    #     print("TESTING GG: ", i, i+1)
     #     for _ in range(repetitions):
-    #         results = single_time_test(pi_stack, pi_stack, i, i+1, True, tmp)
+    #         results = single_time_test(pi_stack, pi_stack, i, i+1, True)
     #         times_py.append(results[0])
-    #         times_fwd.append(results[1])
-    #         times_pi.append(results[2])
-    #         result = results[3]
+    #         result = results[1]
     #     py_time = sum(times_py) / len(times_py)
-    #     fwd_time = sum(times_fwd) / len(times_fwd)
-    #     pi_time = sum(times_pi) / len(times_pi)
-    #     print(times_fwd, times_py)
     #     with open(file, "a") as f:
-    #         f.write(f"Gen|Stack,{i},Gen|Stack,{i},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
+    #         f.write(f"Gen|Stack,{i},Gen|Stack,{i+1},{py_time},{result}\n")
 
     # # TEST 4 Gen | CPT
     # for i in range(start, size + 1, steps):
@@ -319,4 +295,4 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
 
 if __name__ == '__main__':
     sys.setrecursionlimit(500000)
-    benchmark(size=51,start=5,steps=5,repetitions=3)
+    benchmark(size=51,start=5,steps=5 ,repetitions=3)

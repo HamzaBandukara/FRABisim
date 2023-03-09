@@ -68,7 +68,7 @@ if __name__ == '__main__':
         args.remove("-p")
         alg = fwd_pi
     else:
-        msg = """Usage: python runit.py <TYPE>> f1 f2
+        msg = """Usage: python runit.py <TYPE> f1 f2
 Where:  f1 = file containing first FRA / Pi-Calculus Process
         f2 = file containing second FRA / Pi-Calclus Process
         <TYPE> = algorithm type, where:
@@ -99,15 +99,18 @@ SUM         : '+'  ;
         """
         print(msg)
         sys.exit(0)
-    entities = []
-    for file in args[1], args[2]:
-        with open(file, "r") as f:
-            entities.append(f.readline().replace("\n", ""))
     if alg == fwd_pi:
-        args = entities[0], entities[1]
+        p1 = open(args[1], "r").readlines()
+        p2 = open(args[2], "r").readlines()
+        args = [("{}" * len(p)).format(*p) for p in (p1, p2)]
         ret = alg(*args)
         t, result = ret[0] + ret[1], ret[2]
+        print("DEBUG: ", *ret[:-1])
     else:
+        entities = []
+        for file in args[1], args[2]:
+            with open(file, "r") as f:
+                entities.append(f.readline().replace("\n", ""))
         args = set_up_fra(entities[0], entities[1])
         t = time.process_time_ns()
         result = alg(*args)

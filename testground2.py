@@ -20,12 +20,13 @@ def to_graph2(t_df, test_code=None):
     # df=df.drop(labels=["P1Type"], axis=1)
     # df[df < 0] = 0
     d = {k: k for k in df}
-    d["fwd_py"] = "Gen"
+    d["RABiT"] = "Gen"
     d["piet"] = "PiET"
     d["P1Size"] = "Size"
     df = df.rename(columns=d)
-    df['Gen'] = np.log10(df['Gen'])
-    df['PiET'] = np.log10(df['PiET'])
+    for _ in 'Gen', 'PiET':
+        df[_] = np.log10(df[_])
+        df.loc[df[_] < -1.75, _] = -1.75
     print(df)
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
     #     df = pd.melt(df, id_vars=['Size', "P1Type"], value_vars=["Gen", "PiET"])
@@ -38,15 +39,19 @@ def to_graph2(t_df, test_code=None):
     # print(np.log10(-3), np.log10(1.5))
     plt.ylim(-2, 2)
     plt.xlim(0, 21)
-    g.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+    g.yaxis.set_major_locator(ticker.MultipleLocator(0.25))
     print([y for y in g.get_yticks()], 10 ** 2)
     # g.yaxis.set_major_locator(ticker.MultipleLocator(1))
-    ylabels = ['{}'.format(10 ** x) for x in g.get_yticks()]
+    # ylabels = ['{}'.format(10 ** x) for x in g.get_yticks()]
     ylabels = []
+    counter = 0
     for x in g.get_yticks():
-        if x % 1 == 0.5: ylabels.append(" ")
-        else: ylabels.append("{}".format(10 ** x))
-    ylabels[-3] = 30
+        if not (counter - 1) % 4: ylabels.append("{}".format(10 ** x))
+        else: ylabels.append(" ")
+        counter += 1
+    ylabels[-3] = 60
+    ylabels[1] = ""
+    ylabels[2] = 0
     # ylabels = ['$10^{{{}}}$'.format(x) for x in g.get_yticks()]
     # ylabels = ['$10^({})'.format(float(10 ** x)) for x in g.get_yticks()]
     g.set_yticklabels(ylabels)
@@ -54,7 +59,7 @@ def to_graph2(t_df, test_code=None):
     handles, labels = g.get_legend_handles_labels()
     g.legend(handles=handles, labels=labels)
     plt.subplots_adjust(right=0.99, left=0.15, top=0.95)
-    plt.savefig(f"./ATVA/{test_code}.eps", format='eps')
+    plt.savefig(f"./SETTA/{test_code}.eps", format='eps')
     plt.show()
 
 
@@ -68,12 +73,16 @@ def to_graph(t_df, test_code):
     # df=df.drop(labels=["P1Type"], axis=1)
     # df[df < 0] = 0
     d = {k: k for k in df}
-    d["fwd_py"] = "Gen"
+    d["RABiT"] = "Gen"
     d["piet"] = "PiET"
     d["P1Size"] = "Size"
     df = df.rename(columns=d)
-    df['Gen'] = np.log10(df['Gen'])
-    df['PiET'] = np.log10(df['PiET'])
+    for _ in 'Gen', 'PiET':
+        df[_] = np.log10(df[_])
+        df.loc[df[_] < -1.75, _] = -1.75
+    # df['Gen'] = np.log10(df['Gen'])
+    # df['PiET'] = np.log10(df['PiET'])
+
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
         df = pd.melt(df, id_vars=['Size', "P1Type"], value_vars=["Gen", "PiET"])
@@ -84,41 +93,46 @@ def to_graph(t_df, test_code):
     g.set_xlabel("Size", fontsize = 10)
     g.set_ylabel("Time (s)", fontsize = 10)
     # print(np.log10(-3), np.log10(1.5))
-    plt.ylim(-3.5, 2)
+    plt.ylim(-2, 2)
     plt.xlim(4, 51)
-    g.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
+    g.yaxis.set_major_locator(ticker.MultipleLocator(0.25))
     print([y for y in g.get_yticks()], 10 ** 2)
     # g.yaxis.set_major_locator(ticker.MultipleLocator(1))
     ylabels = ['{}'.format(10 ** x) for x in g.get_yticks()]
     ylabels = []
+    counter = 0
     for x in g.get_yticks():
-        if x % 1 == 0.5: ylabels.append(" ")
-        else: ylabels.append("{}".format(10 ** x))
-    ylabels[-3] = 30
+        if not (counter - 1) % 4: ylabels.append("{}".format(10 ** x))
+        else: ylabels.append(" ")
+        counter += 1
+    # ylabels[-3] = 60
+    ylabels[-4] = 30
+    ylabels[1] = ""
+    ylabels[2] = 0
     # ylabels = ['$10^{{{}}}$'.format(x) for x in g.get_yticks()]
     # ylabels = ['$10^({})'.format(float(10 ** x)) for x in g.get_yticks()]
     g.set_yticklabels(ylabels)
-    g.xaxis.set_major_locator(ticker.MultipleLocator(2))
+    g.xaxis.set_major_locator(ticker.MultipleLocator(5))
     handles, labels = g.get_legend_handles_labels()
     g.legend(handles=handles, labels=labels)
     plt.subplots_adjust(right=0.99, left=0.15)
-    plt.savefig(f"./ATVA/{test_code}.eps", format='eps')
+    plt.savefig(f"./SETTA/{test_code}.eps", format='eps')
     plt.show()
 
 
-df1 = pd.read_csv("./Benchmarks/pibench3.csv")
+df1 = pd.read_csv("./Benchmarks/pibench2JAVA.csv")
 pd.set_option('display.precision', 4)
 # df1 = df1.drop(labels=["pyfra", "fwd", "P2Type"], axis=1)
-df1 = df1.drop(labels=["pyfra", "fwd", "P2Type", "P2Size"], axis=1)
+df1 = df1.drop(labels=["P2Type", "P2Size"], axis=1)
 # d = {k: k for k in df1}
 # d["P1Type"] = "Type"
 # d["P1Size"] = "Size 1"
 # d["P2Size"] = "Size 2"
 # df1 = df1.rename(columns=d)
 # print(df1.to_latex())
-# to_graph(df1, True)
-# to_graph(df1, False)
-to_graph2(df1)
+to_graph(df1, True)
+to_graph(df1, False)
+# to_graph2(df1)
 
 # df1 = pd.read_csv("./Benchmarks/Benchmarks_small03052022.csv")
 # pd.set_option('display.precision', 4)

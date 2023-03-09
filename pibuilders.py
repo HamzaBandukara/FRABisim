@@ -343,7 +343,7 @@ def par(gen_1, size_1, gen_2, size_2, g =None):
 def gen(size, gen, p="A"):
     process = gen(size)
     p1 = process.split(" = ")[0]
-    process = f"{p}(a) = GEN(a)|{p1}\nGEN(a) = $b.a<b>.GEN(a)\n" + process
+    process = f"{p}(c) = GEN(c)|{p1}\nGEN(c) = $b.c<b>.GEN(c)\n" + process
     return process
 
 def wrapper(p1, p2, tmp):
