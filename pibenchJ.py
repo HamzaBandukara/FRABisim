@@ -141,36 +141,36 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
     tmp = multiprocessing.Manager().list()
     # if not os.path.exists("./Benchmarks"):
     #     os.mkdir("./Benchmarks")
-    file = "./Benchmarks/pibench_extra.csv"
-    output_file = open(file, "w")
-    output_file.write("P1Type,P1Size,P2Type,P2Size,RABiT,Result\n")
-    output_file.close()
+    file = "./Benchmarks/pibench_extra2.csv"
+    # output_file = open(file, "w")
+    # output_file.write("P1Type,P1Size,P2Type,P2Size,RABiT,Result\n")
+    # output_file.close()
     result=None
     timeout = 30
 
     # Test 01 - Stack vs Stack (Same Size)
-    for i in range(start, size + 1, steps):
-        times_py, times_fwd, times_pi = [], [], []
-        print("TESTING SS: ", i, i)
-        for _ in range(repetitions):
-            results = single_time_test(pi_stack, pi_stack, i, i)
-            times_py.append(results[0])
-            result = results[1]
-        py_time = sum(times_py) / len(times_py)
-        with open(file, "a") as f:
-            f.write(f"Stack,{i},Stack,{i},{py_time},{result}\n")
+    # for i in range(start, size + 1, steps):
+    #     times_py, times_fwd, times_pi = [], [], []
+    #     print("TESTING SS: ", i, i)
+    #     for _ in range(repetitions):
+    #         results = single_time_test(pi_stack, pi_stack, i, i)
+    #         times_py.append(results[0])
+    #         result = results[1]
+    #     py_time = sum(times_py) / len(times_py)
+    #     with open(file, "a") as f:
+    #         f.write(f"Stack,{i},Stack,{i},{py_time},{result}\n")
 
     # TEST 2 CPT
-    for i in range(start, size + 1, steps):
-        times_py, times_fwd, times_pi = [], [], []
-        print("TESTING CC: ", i, i)
-        for _ in range(repetitions):
-            results = single_time_test(pi_cpt, pi_cpt, i, i)
-            times_py.append(results[0])
-            result = results[1]
-        py_time = sum(times_py) / len(times_py)
-        with open(file, "a") as f:
-            f.write(f"FLW,{i},FLW,{i},{py_time},{result}\n")
+    # for i in range(start, size + 1, steps):
+    #     times_py, times_fwd, times_pi = [], [], []
+    #     print("TESTING CC: ", i, i)
+    #     for _ in range(repetitions):
+    #         results = single_time_test(pi_cpt, pi_cpt, i, i)
+    #         times_py.append(results[0])
+    #         result = results[1]
+    #     py_time = sum(times_py) / len(times_py)
+    #     with open(file, "a") as f:
+    #         f.write(f"FLW,{i},FLW,{i},{py_time},{result}\n")
 
     # # TEST 3 Gen | Stack
     # for i in range(start, size + 1, steps):
@@ -203,42 +203,42 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
     #         f.write(f"Gen|CPT,{i},Gen|CPT,{i},{py_time},{fwd_time},{fwd_time + py_time},{pi_time},{result}\n")
 
 
-    # Test 01 - Stack n vs Stack n + 1
-    for i in range(start, size + 1, steps):
-        times_py, times_fwd, times_pi = [], [], []
-        print("TESTING SS: ", i, i+1)
-        for _ in range(repetitions):
-            results = single_time_test(pi_stack, pi_stack, i, i + 1)
-            times_py.append(results[0])
-            result = results[1]
-        py_time = sum(times_py) / len(times_py)
-        with open(file, "a") as f:
-            f.write(f"Stack,{i},Stack,{i+1},{py_time},{result}\n")
-
-    # Test 02 - CPT n vs CPT n + 1
-    for i in range(start, size + 1, steps):
-        times_py, times_fwd, times_pi = [], [], []
-        print("TESTING CC: ", i, i+1)
-        for _ in range(repetitions):
-            results = single_time_test(pi_cpt, pi_cpt, i, i + 1)
-            times_py.append(results[0])
-            result = results[1]
-        py_time = sum(times_py) / len(times_py)
-        with open(file, "a") as f:
-            f.write(f"FLW,{i},FLW,{i+1},{py_time},{result}\n")
-
-
-    # # TEST 3 Gen | Stack
+    # # Test 01 - Stack n vs Stack n + 1
     # for i in range(start, size + 1, steps):
     #     times_py, times_fwd, times_pi = [], [], []
-    #     print("TESTING GG: ", i, i+1)
+    #     print("TESTING SS: ", i, i+1)
     #     for _ in range(repetitions):
-    #         results = single_time_test(pi_stack, pi_stack, i, i+1, True)
+    #         results = single_time_test(pi_stack, pi_stack, i, i + 1)
     #         times_py.append(results[0])
     #         result = results[1]
     #     py_time = sum(times_py) / len(times_py)
     #     with open(file, "a") as f:
-    #         f.write(f"Gen|Stack,{i},Gen|Stack,{i+1},{py_time},{result}\n")
+    #         f.write(f"Stack,{i},Stack,{i+1},{py_time},{result}\n")
+    #
+    # # Test 02 - CPT n vs CPT n + 1
+    # for i in range(start, size + 1, steps):
+    #     times_py, times_fwd, times_pi = [], [], []
+    #     print("TESTING CC: ", i, i+1)
+    #     for _ in range(repetitions):
+    #         results = single_time_test(pi_cpt, pi_cpt, i, i + 1)
+    #         times_py.append(results[0])
+    #         result = results[1]
+    #     py_time = sum(times_py) / len(times_py)
+    #     with open(file, "a") as f:
+    #         f.write(f"FLW,{i},FLW,{i+1},{py_time},{result}\n")
+
+
+    # TEST 3 Gen | Stack
+    for i in range(start, size + 1, steps):
+        times_py, times_fwd, times_pi = [], [], []
+        print("TESTING GG: ", i, i+1)
+        for _ in range(repetitions):
+            results = single_time_test(pi_stack, pi_stack, i, i+1, True)
+            times_py.append(results[0])
+            result = results[1]
+        py_time = sum(times_py) / len(times_py)
+        with open(file, "a") as f:
+            f.write(f"Gen|Stack,{i},Gen|Stack,{i+1},{py_time},{result}\n")
 
     # # TEST 4 Gen | CPT
     # for i in range(start, size + 1, steps):
@@ -295,4 +295,4 @@ def benchmark(size=2, repetitions=1, start=1, steps=1):
 
 if __name__ == '__main__':
     sys.setrecursionlimit(500000)
-    benchmark(size=51,start=5,steps=5 ,repetitions=3)
+    benchmark(size=13,start=1,steps=1,repetitions=3)

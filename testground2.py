@@ -120,7 +120,7 @@ def to_graph(t_df, test_code):
     plt.show()
 
 
-df1 = pd.read_csv("./Benchmarks/pibench2JAVA.csv")
+df1 = pd.read_csv("./Benchmarks/pibench3JAVA.csv")
 pd.set_option('display.precision', 4)
 # df1 = df1.drop(labels=["pyfra", "fwd", "P2Type"], axis=1)
 df1 = df1.drop(labels=["P2Type", "P2Size"], axis=1)
@@ -130,9 +130,9 @@ df1 = df1.drop(labels=["P2Type", "P2Size"], axis=1)
 # d["P2Size"] = "Size 2"
 # df1 = df1.rename(columns=d)
 # print(df1.to_latex())
-to_graph(df1, True)
-to_graph(df1, False)
-# to_graph2(df1)
+# to_graph(df1, True)
+# to_graph(df1, False)
+to_graph2(df1)
 
 # df1 = pd.read_csv("./Benchmarks/Benchmarks_small03052022.csv")
 # pd.set_option('display.precision', 4)

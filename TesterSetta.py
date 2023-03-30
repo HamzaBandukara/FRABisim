@@ -225,11 +225,12 @@ def rabitjrunner(a1, a2, repetitions, triple):
     else: triple = triple[0], str(triple[1]).replace("'", "").replace(" ", ""), triple[2]
     for _ in range(repetitions):
         try:
-            x = str(subprocess.check_output(["java", "-jar", "./rabitj/rabit.jar", "./xml_1.xml", "./xml_2.xml", "({},{},{})".format(*triple)], stderr=subprocess.STDOUT, timeout=60))
+            x = str(subprocess.check_output(["java", "-Xss1024m", "-jar", "./rabitj/rabit.jar", "-g", "./xml_1.xml", "./xml_2.xml", "({},{},{})".format(*triple)], stderr=subprocess.STDOUT, timeout=60))
             x = x.replace("'", "").replace("b", "")
             x = x.split(" ")
             times.append(float(x[1][:-4]))
             results.append(x[0])
+            print("Result: ", x[0])
         except subprocess.TimeoutExpired:
             pass
     if len(times) == 0 and len(results) == 0:
@@ -273,41 +274,42 @@ def lois(method, det_1, size_1, det_2, size_2, timeout, repetitions=3):
 def benchmarks(size=30, repetitions=1, start=1, steps=1):
     # if not os.path.exists("./Benchmarks"):
     #     os.mkdir("./Benchmarks")
-    # # output_file = open("Benchmarks_SETTA.csv", "w")
-    # # output_file.write(
-    # #     "TestCode,RA,States,Transitions,Memo,Exception,Generator,Result,DEQ-Result,DEQ-Time,LOIS FW Result,LOIS FW Time,LOIS PR Result,LOIS PR Time\n")
-    # # # output_file.write("TestCode,RA,Naive,Memo,Exception,Generator\n")
-    # # output_file.close()
-    # timeout = 30
-    # # open("JTimes", "w").close()
-    # # Test_01_B - LR Deterministic Stacks
+    # output_file = open("JTimes2.csv", "w")
+    # output_file.write("CODE,TYPE,TIME\n")
+    # output_file.close()
+    #     "TestCode,RA,States,Transitions,Memo,Exception,Generator,Result,DEQ-Result,DEQ-Time,LOIS FW Result,LOIS FW Time,LOIS PR Result,LOIS PR Time\n")
+    # # output_file.write("TestCode,RA,Naive,Memo,Exception,Generator\n")
+    # output_file.close()
+    timeout = 30
+    # open("JTimes", "w").close()
+    # Test_01_B - LR Deterministic Stacks
     # for i in range(start, size, steps):
-    #     r1, r2 = gen_det(i), gen_det(i)
+    #     r1, r2 = gen_det(i), rl_gen_det(i)
     #     result, time = rabitjrunner(r1, r2, repetitions, ("q0", set(), "q0"))
-    #     with open("JTimes", "a") as f:
+    #     with open("JTimes2.csv", "a") as f:
     #         f.write("Test_01_B,LR_DS_{},{}\n".format(i, time))
-    #     # representation = gen_det(i)
-    #     # q1 = representation.split("{")[2][:-1]
-    #     # q2 = q1.replace("q", "p")
-    #     # representation = combiner(representation, rl_gen_det(i))
-    #     # record("Test_01_B", "LR_DS_{}".format(i), representation, q1, set(), q2, repetitions)
-    #     # output_file = open("Benchmarks_SETTA.csv", "a")
-    #     # result, time = deq(representation, representation, repetitions)
-    #     # output_file.write(",{},{:.16f}".format(result, float(time)))
-    #     # if size < 21:
-    #     #     result, time = lois("FW", True, i, True, i, timeout, repetitions)
-    #     #     output_file.write(",{},{:.16f}".format(result, float(time)))
-    #     #     result, time = lois("PR", True, i, True, i, timeout, repetitions)
-    #     #     output_file.write(",{},{:.16f}\n".format(result, float(time)))
-    #     # else:
-    #     #     output_file.write(",NA,30000,NA,30000\n")
-    #     # output_file.close()
+        # representation = gen_det(i)
+        # q1 = representation.split("{")[2][:-1]
+        # q2 = q1.replace("q", "p")
+        # representation = combiner(representation, rl_gen_det(i))
+        # record("Test_01_B", "LR_DS_{}".format(i), representation, q1, set(), q2, repetitions)
+        # output_file = open("Benchmarks_SETTA.csv", "a")
+        # result, time = deq(representation, representation, repetitions)
+        # output_file.write(",{},{:.16f}".format(result, float(time)))
+        # if size < 21:
+        #     result, time = lois("FW", True, i, True, i, timeout, repetitions)
+        #     output_file.write(",{},{:.16f}".format(result, float(time)))
+        #     result, time = lois("PR", True, i, True, i, timeout, repetitions)
+        #     output_file.write(",{},{:.16f}\n".format(result, float(time)))
+        # else:
+        #     output_file.write(",NA,30000,NA,30000\n")
+        # output_file.close()
     #
     # # Test_01_D - LR Non-Deterministic Stacks
     # for i in range(start, size, steps):
-    #     r1, r2 = gen_ndet(i), gen_ndet(i)
+    #     r1, r2 = gen_ndet(i), rl_gen_ndet(i)
     #     result, time = rabitjrunner(r1, r2, repetitions, ("q0", set(), "q0"))
-    #     with open("JTimes", "a") as f:
+    #     with open("JTimes2.csv", "a") as f:
     #         f.write("Test_01_D,LR_NDS_{},{}\n".format(i, time))
     #     # representation = gen_ndet(i)
     #     # q1 = representation.split("{")[2][:-1]
@@ -318,11 +320,11 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
     #     # output_file.write(",NA,NA,NA,NA,NA,NA\n")
     #     # output_file.close()
     #
-    # # Test 01_F - CPT
+    # Test 01_F - CPT
     # for i in range(start, size, steps):
     #     r1, r2 = gen_cpt(i), gen_cpt(i)
     #     result, time = rabitjrunner(r1, r2, repetitions, ("q0", set(), "q0"))
-    #     with open("JTimes", "a") as f:
+    #     with open("JTimes2.csv", "a") as f:
     #         f.write("Test_01_F,CPT_{},{}\n".format(i, time))
     #     # representation = gen_cpt(i)
     #     # q1 = representation.split("{")[2][:-1]
@@ -334,12 +336,13 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
     #     # output_file.write(",NA,NA,NA,NA,NA,NA\n")
     #     # output_file.close()
     #
-    # # Test 01_F - Flower
+    # Test 01_F - Flower
     # for i in range(start, size, steps):
     #     r1, r2 = gen_flw(i), gen_flw(i)
+    #     print("F", i, i)
     #     result, time = rabitjrunner(r1, r2, repetitions, ("q0", set(), "q0"))
-    #     with open("JTimes", "a") as f:
-    #         f.write("Test_01_F,FLW_{},{}\n".format(i, time))
+    #     with open("JTimes2.csv", "a") as f:
+    #         f.write("Test_01_H,FLW_{},{}\n".format(i, time))
     #     # representation = gen_flw(i)
     #     # representation = combiner(representation, representation)
     #     # q1 = representation.split("{")[2][:-1]
@@ -353,8 +356,9 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
     # Test 01_G - Clique
     for i in range(start, size, steps):
         r1, r2 = gen_cli(i), gen_cli(i)
+        print("C", i, i)
         result, time = rabitjrunner(r1, r2, repetitions, ("q0", set(), "q0"))
-        with open("JTimes", "a") as f:
+        with open("JTimes2.csv", "a") as f:
             f.write("Test_01_G,CLI_{},{}\n".format(i, time))
         # representation = gen_cli(i)
         # q1 = representation.split("{")[2][:-1]
@@ -369,4 +373,4 @@ def benchmarks(size=30, repetitions=1, start=1, steps=1):
 
 
 if __name__ == '__main__':
-    benchmarks(size=201, repetitions=3, start=30, steps=10)
+    benchmarks(size=81, repetitions=3, start=20, steps=10)
