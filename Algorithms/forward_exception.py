@@ -1,11 +1,8 @@
-from itertools import product
-
 from RAGen.Combiner import combiner
-from RAGen.NDGenerator import generate_stack as ndet
 from RAGen.Generator import generate_stack as det
 from RAGen.GloGenerator import generate_stack as glodet
 from datetime import datetime as dt
-from exceptions import WrongAssumption
+from Benchmarks_2.exceptions import WrongAssumption
 
 from DataStructures.RA_SF_A import RegisterAutomata
 from DataStructures.Sigma import Sigma

@@ -1,5 +1,4 @@
-from itertools import product
-from exceptions import UniverseException
+from Benchmarks_2.exceptions import UniverseException
 
 from DataStructures.RA_SF_A import RegisterAutomata
 from DataStructures.Sigma import Sigma
