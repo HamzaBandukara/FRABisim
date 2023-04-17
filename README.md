@@ -5,7 +5,6 @@ RABiT (Register Automata Bisimulation Tool) is a tool that can determine strong 
 The directory structure is as follows:
 
 - A-SF-RA-Cases: Contains some small test examples that help test for correctness
-- ATVA: Contains the generated graphs for the companion paper
 - Algorithms: Contains all bisimulation algorithms (complete and experimental)
 - Benchmarks: Contains csv files with benchmarking times
 - DataStructures: Contains all custom built data structures for the tool
@@ -15,10 +14,14 @@ The directory structure is as follows:
 - DEQ: Contains the code for the DEQ tool
 - Examples: Contains RA examples to use with the tool
 - pi2fra: Contains the prototype code for converting a Pi-Calculus process to FRA
+- SETTA: Contains graphs and benchmarks for the latest update of the tool (RABiT-j)
 
 <h2>Requirements</h2>
 
-The following are needed in order to run RABiT:
+The following is needed in order to run RABiT-j:
+- java 17.0.2 2022-01-18 LTS
+
+The following are needed in order to run RABiT (Older version):
 
 - Python 3.9+
 - SymPy (https://www.sympy.org/en/index.html)
@@ -27,7 +30,26 @@ The following are needed in order to run RABiT:
 <h2>Usage</h2>
 This section describes how to use the RABiT tool.
 
-<h3>Tool Usage</h3>
+<h3>Tool Usage - Java</h3>
+
+In order to run RABiT-j, enter one of the following into the command line from the project root directory:
+- `java -jar ./rabitj/rabit.jar <TYPE> file1 file2 <TRIPLE>`
+- `java -jar ./rabitj/rabit.jar -pi file1`
+
+The first case is for running the tool on FRAs. file1 and file2 are paths to the two register automata in the XML format, and `<TYPE>` is the specific bisimulation type, with the following options:
+- -b for on-the-fly standard
+- -g for on-the-fly generator
+The `<TRIPLE>` is the initial triple being tested for bisimulation, containing a state, a register mapping, and another state. 
+For example, to test two stacks of size 5 (from state q1), 10 (from state q2) against each other using the on-the-fly generator algorithm (and an initial register mapping of 1 -> 2), you can run from the root directory:
+
+`java -jar ./rabitj/rabit.jar -g jexamples/st/_5.xml jexamplesj/st/_10.xml "(q1,{(1,2)},q2)"`
+
+The second case is for running the tool on pi-calculus processes. The two processes must be stored in one file. 
+For example, to test a stack of size 5 against a stack of size 10, you can run from the root directory:
+
+ `java -jar ./rabitj/rabit.jar -pi jexamples/pi/st5st10`
+
+<h3>Tool Usage - Python(OLD)</h3>
 In order to run the tool, enter the following from the command line from the project root directory:
 
 `python rabit.py <TYPE> file1 file2 `
@@ -43,7 +65,80 @@ For example, to test two stacks of size 5, 10 against each other using the on-th
   
 `python rabit.py -g examples/st/_5 examples/st/_10`
 
-<h3>Fresh-Register Automata</h3>
+<h3>Fresh-Register Automata - Java</h3>
+The structure of Fresh-Register Automata follows the one found <a href="https://github.com/sjrsay/deq">here</a>.
+Each FRA is an XML file with a top level tag `<dra` with children `<states>`, `<initial-state>` and `<transitions>`.
+For this section, we will use a stack of size 2 as an example, which can be found in `/jexamples/ST/_2`
+
+The states of the FRA are a list of `<state>` nodes, where each `<state>` has children `<id>` and `<available-registers>` (where `<available-registers>` is a list of `<register>` nodes).
+For a stack of size 2, the states would look as such:
+
+```
+  <states>
+    <state>
+      <id>q0</id>
+      <available-registers/>
+    </state>
+    <state>
+      <id>q1</id>
+      <available-registers>
+        <register>1</register>
+      </available-registers>
+    </state>
+    <state>
+      <id>q2</id>
+      <available-registers>
+        <register>1</register>
+        <register>2</register>
+      </available-registers>
+    </state>
+  </states>
+```
+
+The initial state node for a FRA is simply the id of a state contained in `<states>`. 
+For the stack of size 2 example, this would be:
+
+```
+  <initial-state>q0</initial-state>
+```
+
+The transitions for an FRA are a list of `<transition>` nodes, where each transition contains children `<from>` (the source), `<input>` (the tag), '<op>` (the operation or type), `<register>` (the register) and `<to>` (the target). 
+For the stack of size 2 example, this would be:
+
+```
+<transitions>
+    <transition>
+      <from>q0</from>
+      <input>push</input>
+      <op>LFresh</op>
+      <register>1</register>
+      <to>q1</to>
+    </transition>
+    <transition>
+      <from>q1</from>
+      <input>pop</input>
+      <op>Read</op>
+      <register>1</register>
+      <to>q0</to>
+    </transition>
+    <transition>
+      <from>q1</from>
+      <input>push</input>
+      <op>LFresh</op>
+      <register>2</register>
+      <to>q2</to>
+    </transition>
+    <transition>
+      <from>q2</from>
+      <input>pop</input>
+      <op>Read</op>
+      <register>2</register>
+      <to>q1</to>
+    </transition>
+  </transitions>
+```
+
+<h3>Fresh-Register Automata - Python</h3>
 The structure for fresh-register automata are as follows:
   
 ```
@@ -81,7 +176,69 @@ Where:
 
 At each push operation, the stack reads in a name that is not currently in its registers (hence the L type). Thus, the stack will always contain distinct names.
   
-<h3>Pi-Calculus Processes</h3>
+<h3>Pi-Calculus Processes - Java</h3>
+Pi-Calculus Processes have a grammar defined as such for processes:
+
+```
+root
+    : (line NEWLINE)+ 'TEST' aprocess 'WITH' aprocess NEWLINE* EOF
+    ;
+
+line
+    : aprocess
+    | definition
+    | NEWLINE
+    ;
+
+definition
+    : PROCESSNAME '(' CHANNEL? (',' CHANNEL)* ')' '=' aprocess
+    ;
+
+aprocess
+    : bprocess (SUM bprocess)*
+    ;
+
+bprocess
+    : process (PAR process)*
+    ;
+
+process
+    :  '(' aprocess ')'
+    | CHANNEL ( '<' CHANNEL '>' | '(' CHANNEL ')') '.' process
+    | '[' CHANNEL ('#' | '=') CHANNEL ']' process
+    | '$' CHANNEL '.' process
+    | '_t.' process
+    | PROCESSNAME '(' CHANNEL? (',' CHANNEL)* ')'
+    | '0'
+    ;
+
+processmid
+    : (PAR | SUM) process
+    |
+    ;
+
+CHANNEL     : [a-z] ([a-z] | [0-9])* ;
+PROCESSNAME : [A-Z] ([A-Z] | [0-9])* ;
+PAR         : '|'  ;
+SUM         : '+'  ;
+
+```
+For example, a process could be:
+`A(a) = a(b).A(b)`
+for a process that receives some name on channel 'a', binds it to 'b' and then repeats using the name 'b'.
+
+For process files, the file must first define any process definitions, and then it must state which two processes to test against each other. 
+For example, the file could look as such to test `A(a)` against `D(a)`
+
+```
+A(b) = a(b).B(a)
+B(a) = a<a>.A(a)
+C(a) = $b.a<b>.D(a)
+D(a) = $c.a<c>.C(c)
+TEST A(a) WITH D(a)
+```
+  
+<h3>Pi-Calculus Processes - Python</h3>
 Pi-Calculus processes have a grammar defined as such for processes:
   
 ```
