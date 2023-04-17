@@ -1,0 +1,13 @@
+C(c) = ((c(d).[d#c]c<c>.D(c,d)))
+D(c,d) = ((c<d>.C(c)) + (c(e).[e#c][e#d]c<c>.E(c,d,e)))
+E(c,d,e) = ((c<e>.D(c,d)) + (c(f).[f#c][f#d][f#e]c<c>.F(c,d,e,f)))
+F(c,d,e,f) = ((c<f>.E(c,d,e)) + (c(g).[g#c][g#d][g#e][g#f]c<c>.G(c,d,e,f,g)))
+G(c,d,e,f,g) = ((c<g>.F(c,d,e,f)) + (c(h).[h#c][h#d][h#e][h#f][h#g]c<c>.H(c,d,e,f,g,h)))
+H(c,d,e,f,g,h) = ((c<h>.G(c,d,e,f,g)))
+
+K(a) = ((a(b).[b#a]a<a>.L(a,b)))
+L(a,b) = (a<b>.L(a,b)) + ((a(c).[c#a][c#b]a<a>.M(a,b,c)))
+M(a,b,c) = (a<b>.M(a,b,c)) + (a<c>.M(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.N(a,b,c,d)))
+N(a,b,c,d) = (a<b>.N(a,b,c,d)) + (a<c>.N(a,b,c,d)) + (a<d>.N(a,b,c,d))
+
+TEST C(c) WITH K(a)

@@ -1,0 +1,7 @@
+C(c) = ((c(d).[d#c]c<c>.D(c,d)))
+D(c,d) = ((c<d>.C(c)))
+
+G(c) = ((c(d).[d#c]c<c>.H(c,d)))
+H(c,d) = ((c<d>.G(c)))
+
+TEST C(c) WITH G(c)

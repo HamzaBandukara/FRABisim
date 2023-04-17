@@ -1,0 +1,9 @@
+C(a) = ((a(b).[b#a]a<a>.D(a,b)))
+D(a,b) = (a<b>.D(a,b)) + ((a(c).[c#a][c#b]a<a>.E(a,b,c)))
+E(a,b,c) = (a<b>.E(a,b,c)) + (a<c>.E(a,b,c))
+
+H(a) = ((a(b).[b#a]a<a>.I(a,b)))
+I(a,b) = (a<b>.I(a,b)) + ((a(c).[c#a][c#b]a<a>.J(a,b,c)))
+J(a,b,c) = (a<b>.J(a,b,c)) + (a<c>.J(a,b,c))
+
+TEST C(a) WITH H(a)

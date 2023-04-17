@@ -1,0 +1,13 @@
+C(a) = ((a(b).[b#a]a<a>.D(a,b)))
+D(a,b) = (a<b>.D(a,b)) + ((a(c).[c#a][c#b]a<a>.E(a,b,c)))
+E(a,b,c) = (a<b>.E(a,b,c)) + (a<c>.E(a,b,c)) + ((a(d).[d#a][d#b][d#c]a<a>.F(a,b,c,d)))
+F(a,b,c,d) = (a<b>.F(a,b,c,d)) + (a<c>.F(a,b,c,d)) + (a<d>.F(a,b,c,d)) + ((a(e).[e#a][e#b][e#c][e#d]a<a>.G(a,b,c,d,e)))
+G(a,b,c,d,e) = (a<b>.G(a,b,c,d,e)) + (a<c>.G(a,b,c,d,e)) + (a<d>.G(a,b,c,d,e)) + (a<e>.G(a,b,c,d,e)) + ((a(f).[f#a][f#b][f#c][f#d][f#e]a<a>.H(a,b,c,d,e,f)))
+H(a,b,c,d,e,f) = (a<b>.H(a,b,c,d,e,f)) + (a<c>.H(a,b,c,d,e,f)) + (a<d>.H(a,b,c,d,e,f)) + (a<e>.H(a,b,c,d,e,f)) + (a<f>.H(a,b,c,d,e,f)) + ((a(g).[g#a][g#b][g#c][g#d][g#e][g#f]a<a>.I(a,b,c,d,e,f,g)))
+I(a,b,c,d,e,f,g) = (a<b>.I(a,b,c,d,e,f,g)) + (a<c>.I(a,b,c,d,e,f,g)) + (a<d>.I(a,b,c,d,e,f,g)) + (a<e>.I(a,b,c,d,e,f,g)) + (a<f>.I(a,b,c,d,e,f,g)) + (a<g>.I(a,b,c,d,e,f,g)) + ((a(h).[h#a][h#b][h#c][h#d][h#e][h#f][h#g]a<a>.J(a,b,c,d,e,f,g,h)))
+J(a,b,c,d,e,f,g,h) = (a<b>.J(a,b,c,d,e,f,g,h)) + (a<c>.J(a,b,c,d,e,f,g,h)) + (a<d>.J(a,b,c,d,e,f,g,h)) + (a<e>.J(a,b,c,d,e,f,g,h)) + (a<f>.J(a,b,c,d,e,f,g,h)) + (a<g>.J(a,b,c,d,e,f,g,h)) + (a<h>.J(a,b,c,d,e,f,g,h))
+
+M(a) = ((a(b).[b#a]a<a>.N(a,b)))
+N(a,b) = (a<b>.N(a,b))
+
+TEST C(a) WITH M(a)

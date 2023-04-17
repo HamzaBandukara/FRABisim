@@ -1,0 +1,13 @@
+C(c) = ((c(d).[d#c]c<c>.D(c,d)))
+D(c,d) = ((c<d>.C(c)) + (c(e).[e#c][e#d]c<c>.E(c,d,e)))
+E(c,d,e) = ((c<e>.D(c,d)) + (c(f).[f#c][f#d][f#e]c<c>.F(c,d,e,f)))
+F(c,d,e,f) = ((c<f>.E(c,d,e)) + (c(g).[g#c][g#d][g#e][g#f]c<c>.G(c,d,e,f,g)))
+G(c,d,e,f,g) = ((c<g>.F(c,d,e,f)) + (c(h).[h#c][h#d][h#e][h#f][h#g]c<c>.H(c,d,e,f,g,h)))
+H(c,d,e,f,g,h) = ((c<h>.G(c,d,e,f,g)) + (c(i).[i#c][i#d][i#e][i#f][i#g][i#h]c<c>.I(c,d,e,f,g,h,i)))
+I(c,d,e,f,g,h,i) = ((c<i>.H(c,d,e,f,g,h)) + (c(j).[j#c][j#d][j#e][j#f][j#g][j#h][j#i]c<c>.J(c,d,e,f,g,h,i,j)))
+J(c,d,e,f,g,h,i,j) = ((c<j>.I(c,d,e,f,g,h,i)))
+
+M(c) = ((c(d).[d#c]c<c>.N(c,d)))
+N(c,d) = ((c<d>.M(c)))
+
+TEST C(c) WITH M(c)

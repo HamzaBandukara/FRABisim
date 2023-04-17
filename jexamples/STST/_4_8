@@ -1,0 +1,17 @@
+C(c) = ((c(d).[d#c]c<c>.D(c,d)))
+D(c,d) = ((c<d>.C(c)) + (c(e).[e#c][e#d]c<c>.E(c,d,e)))
+E(c,d,e) = ((c<e>.D(c,d)) + (c(f).[f#c][f#d][f#e]c<c>.F(c,d,e,f)))
+F(c,d,e,f) = ((c<f>.E(c,d,e)) + (c(g).[g#c][g#d][g#e][g#f]c<c>.G(c,d,e,f,g)))
+G(c,d,e,f,g) = ((c<g>.F(c,d,e,f)))
+
+J(c) = ((c(d).[d#c]c<c>.K(c,d)))
+K(c,d) = ((c<d>.J(c)) + (c(e).[e#c][e#d]c<c>.L(c,d,e)))
+L(c,d,e) = ((c<e>.K(c,d)) + (c(f).[f#c][f#d][f#e]c<c>.M(c,d,e,f)))
+M(c,d,e,f) = ((c<f>.L(c,d,e)) + (c(g).[g#c][g#d][g#e][g#f]c<c>.N(c,d,e,f,g)))
+N(c,d,e,f,g) = ((c<g>.M(c,d,e,f)) + (c(h).[h#c][h#d][h#e][h#f][h#g]c<c>.O(c,d,e,f,g,h)))
+O(c,d,e,f,g,h) = ((c<h>.N(c,d,e,f,g)) + (c(i).[i#c][i#d][i#e][i#f][i#g][i#h]c<c>.P(c,d,e,f,g,h,i)))
+P(c,d,e,f,g,h,i) = ((c<i>.O(c,d,e,f,g,h)) + (c(j).[j#c][j#d][j#e][j#f][j#g][j#h][j#i]c<c>.Q(c,d,e,f,g,h,i,j)))
+Q(c,d,e,f,g,h,i,j) = ((c<j>.P(c,d,e,f,g,h,i)) + (c(k).[k#c][k#d][k#e][k#f][k#g][k#h][k#i][k#j]c<c>.R(c,d,e,f,g,h,i,j,k)))
+R(c,d,e,f,g,h,i,j,k) = ((c<k>.Q(c,d,e,f,g,h,i,j)))
+
+TEST C(c) WITH J(c)

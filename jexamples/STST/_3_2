@@ -1,0 +1,10 @@
+C(c) = ((c(d).[d#c]c<c>.D(c,d)))
+D(c,d) = ((c<d>.C(c)) + (c(e).[e#c][e#d]c<c>.E(c,d,e)))
+E(c,d,e) = ((c<e>.D(c,d)) + (c(f).[f#c][f#d][f#e]c<c>.F(c,d,e,f)))
+F(c,d,e,f) = ((c<f>.E(c,d,e)))
+
+I(c) = ((c(d).[d#c]c<c>.J(c,d)))
+J(c,d) = ((c<d>.I(c)) + (c(e).[e#c][e#d]c<c>.K(c,d,e)))
+K(c,d,e) = ((c<e>.J(c,d)))
+
+TEST C(c) WITH I(c)
