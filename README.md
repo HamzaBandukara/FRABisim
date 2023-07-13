@@ -4,16 +4,17 @@ RABiT (Register Automata Bisimulation Tool) is a tool that can determine strong 
 <h2>Directory Structure</h2>
 The directory structure is as follows:
 
-- A-SF-RA-Cases: Contains some small test examples that help test for correctness
 - Algorithms: Contains all bisimulation algorithms (complete and experimental)
 - Benchmarks: Contains csv files with benchmarking times
 - DataStructures: Contains all custom built data structures for the tool
-- Generator: Contains two versions of the generating system used
-- LOIS: Contains the LOIS bisimulation tool used for benchmarking
-- RAGen: Contains scripts that can generate automata of any size
 - DEQ: Contains the code for the DEQ tool
 - Examples: Contains RA examples to use with the tool
+- Generator: Contains two versions of the generating system used
+- Jexamples: Contains RA examples to use with the Java version of the tool
+- LOIS: Contains the LOIS bisimulation tool used for benchmarking
 - pi2fra: Contains the prototype code for converting a Pi-Calculus process to FRA
+- RABITJ: Contains source files and executables for RABiT (Java)
+- RAGen: Contains scripts that can generate automata of any size
 - SETTA: Contains graphs and benchmarks for the latest update of the tool (RABiT-j)
 
 <h2>Requirements</h2>
@@ -61,13 +62,14 @@ where file1, file2 are the paths to the two register automata / processes, and `
 - -e for on-the-fly exception
 - -p for pi-calculus processes
 
-For example, to test two stacks of size 5, 10 against each other using the on-the-fly generator algorithm, you can run from the root directory:
+For example, to test two stacks of size 5, 10 against each other using the on-the-fly generator algorithm, you can run from the root directory :
   
 `python rabit.py -g examples/st/_5 examples/st/_10`
 
 <h3>Fresh-Register Automata - Java</h3>
+
 The structure of Fresh-Register Automata follows the one found <a href="https://github.com/sjrsay/deq">here</a>.
-Each FRA is an XML file with a top level tag `<dra` with children `<states>`, `<initial-state>` and `<transitions>`.
+Each FRA is an XML file with a top level tag `<dra>` with children `<states>`, `<initial-state>` and `<transitions>`.
 For this section, we will use a stack of size 2 as an example, which can be found in `/jexamples/ST/_2`
 
 The states of the FRA are a list of `<state>` nodes, where each `<state>` has children `<id>` and `<available-registers>` (where `<available-registers>` is a list of `<register>` nodes).
