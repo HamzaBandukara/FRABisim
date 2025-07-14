@@ -7,7 +7,9 @@ public class Partition {
     public Set<Integer> xc;
     public Map<String, PartialPermutation> rays;
     public SetPermutationGroup group;
-    private int hash;
+    private final int hash;
+    public int id;
+    private static int counter;
 
     // For initial use;
     public Partition(String q, Set<Integer> x, Map<String, PartialPermutation> sigmas) {
@@ -25,15 +27,22 @@ public class Partition {
         HashSet<PartialPermutation> perms = new HashSet<>();
         perms.add(PartialPermutation.generatePartialPermutation(map, degree));
         group = new SetPermutationGroup(perms);
-        hash = Objects.hash(qc, xc, rays, group);
+        id = counter;
+        counter ++;
+        hash = id;
+//        hash = Objects.hash(qc, xc, rays, group);
     }
 
-    public Partition(String q, Set<Integer> x, Map<String, PartialPermutation> sigmas, Set<PartialPermutation> gc) {
+    public Partition(String q, Set<Integer> x, Map<String, PartialPermutation> sigmas, SetPermutationGroup g) {
         qc = q;
         xc = x;
         rays = sigmas;
-        group = new SetPermutationGroup(gc);
-        hash = Objects.hash(qc, xc, rays, group);
+//        group = new SetPermutationGroup(g.getGc());
+        group = new SetPermutationGroup(g);
+        id = counter;
+        counter ++;
+        hash = id;
+//        hash = Objects.hash(qc, xc, rays, group);
     }
 
     public String toString(){
@@ -44,20 +53,22 @@ public class Partition {
     @Override
     public Partition clone(){
         Map<String, PartialPermutation> newrays = new HashMap<>(rays);
-        return new Partition(qc, xc, newrays, new HashSet<>(group.gc));
+        return new Partition(qc, xc, newrays, group);
     }
 
     public void addPermutation(PartialPermutation toPermutation) {
         group.addGenerator(toPermutation);
-        hash = Objects.hash(qc, xc, rays, group);
+//        hash = Objects.hash(qc, xc, rays, group);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Partition partition = (Partition) o;
-        return Objects.equals(qc, partition.qc) && Objects.equals(xc, partition.xc) && Objects.equals(rays, partition.rays) && Objects.equals(group, partition.group);
+        Partition p = (Partition) o;
+        return p.id == id;
+//        if (o == null || getClass() != o.getClass()) return false;
+//        Partition partition = (Partition) o;
+//        return Objects.equals(qc, partition.qc) && Objects.equals(xc, partition.xc) && Objects.equals(rays, partition.rays) && Objects.equals(group, partition.group);
     }
 
     @Override

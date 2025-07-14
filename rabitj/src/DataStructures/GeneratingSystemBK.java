@@ -66,14 +66,14 @@ public class GeneratingSystemBK {
                 part.addPermutation(sigma);
                 return;
             }
-            I = new HashSet<>(part.group.gc);
+            I = new HashSet<>(part.group.getGc());
             I.add(sigma_hat);
         }
         else{
             merge = true;
             for(String key: p2.rays.keySet())
                 part.rays.put(key, p2.rays.get(key));
-            I = new HashSet<>(part.group.gc);
+            I = new HashSet<>(part.group.getGc());
             PartialPermutation sigma_hat_inverse = sigma_hat.inverse();
             for(PartialPermutation p: p2.rays.values()){
                 PartialPermutation tauHat = sigma_hat.multiply(p).multiply(sigma_hat_inverse);

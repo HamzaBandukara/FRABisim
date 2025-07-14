@@ -38,7 +38,13 @@ public class RA{
     }
 
     public void completeSetup(){
-        s_map.replaceAll((k, v) -> Collections.unmodifiableSet(s_map.get(k)));
+        for(Map.Entry<String, Set<Integer>> e: s_map.entrySet()){
+            Set<Integer> tmp = new HashSet<>(e.getValue().size() + 1, 1.0f);
+            tmp.addAll(e.getValue());
+            tmp = Collections.unmodifiableSet(tmp);
+            s_map.put(e.getKey(), tmp);
+        }
+//        s_map.replaceAll((k, v) -> Collections.unmodifiableSet(s_map.get(k)));
     }
 
     public Set<String> getTargets(String src, String tag, String type, int reg){

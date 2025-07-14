@@ -3,6 +3,10 @@ import DataStructures.*;
 import java.util.*;
 
 public class Fwd {
+
+    public static int callcntr;
+    public static int bkcntr;
+
     public static boolean forward(RA ra, String q1, Map<Integer, Integer> set, String q2){
         PartialPermutation sigma = PartialPermutation.generatePartialPermutation(set, ra.degree);
         Map<HardTriplet<String, PartialPermutation, String>, Integer> visited = new HashMap<>();
@@ -10,8 +14,11 @@ public class Fwd {
         Set<HardTriplet<String, PartialPermutation, String>> bad = new HashSet<>();
         Set<Integer> deleted = new HashSet<>();
         GlobalCounter counter = new GlobalCounter();
+        callcntr = 0;
+        bkcntr = 0;
         boolean result = bisimOK(q1, sigma, q2, ra, visited, assumed, bad, counter, deleted);
-//        System.out.println(G);
+//        System.out.println("Calls: " + callcntr);
+//        System.out.println("Backtracks: " + bkcntr);
         return result;
     }
 
@@ -20,6 +27,7 @@ public class Fwd {
     }
 
     private static boolean bisimOK(String q1, PartialPermutation sigma, String q2, RA ra, Map<HardTriplet<String, PartialPermutation, String>, Integer> visited, Set<Integer> assumed, Set<HardTriplet<String, PartialPermutation, String>> bad, GlobalCounter counter, Set<Integer> deleted) {
+        callcntr ++;
         HardTriplet<String, PartialPermutation, String> current = new HardTriplet<>(q1, sigma, q2);
         if(bad.contains(current)) {
             return false;
@@ -53,6 +61,7 @@ public class Fwd {
                 assumed.remove(i);
             }
         }
+        bkcntr ++;
         return false;
     }
 

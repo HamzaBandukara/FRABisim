@@ -1,16 +1,18 @@
 package DataStructures;
 
-import org.javatuples.Triplet;
+
+
+import org.antlr.v4.runtime.misc.Triple;
 
 import java.util.Objects;
 
 public final class HardTriplet<A, B, C> {
 
-    public Triplet<A, B, C> triplet;
+    public Triple<A, B, C> triplet;
     public int hash;
 
     public HardTriplet(A a, B b, C c){
-        this.triplet = new Triplet<>(a,b,c);
+        this.triplet = new Triple<>(a,b,c);
         this.hash = Objects.hash(a,b,c);
 //        this.hash = triplet.hashCode();
     }
@@ -24,6 +26,6 @@ public final class HardTriplet<A, B, C> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HardTriplet<?, ?, ?> that = (HardTriplet<?, ?, ?>) o;
-        return (this.triplet.getValue0().equals(that.triplet.getValue0())) && (this.triplet.getValue1().equals(that.triplet.getValue1())) && (this.triplet.getValue2().equals(that.triplet.getValue2()));
+        return (triplet.a.equals(that.triplet.a)&& triplet.b.equals(that.triplet.b) && triplet.c.equals(that.triplet.c));
     }
 }

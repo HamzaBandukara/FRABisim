@@ -3,6 +3,10 @@ import DataStructures.*;
 import java.util.*;
 
 public class FwdGen{
+
+    public static int callcnt;
+    public static int bkcnt;
+
     public static boolean forward(RA ra, String q1, Map<Integer, Integer> set, String q2){
         PartialPermutation sigma = PartialPermutation.generatePartialPermutation(set, ra.degree);
         List<Partition> partitions = new ArrayList<>();
@@ -14,10 +18,15 @@ public class FwdGen{
             partitions.add(new Partition(q, new HashSet<>(ra.s_map.get(q)), rays));
         }
         GeneratingSystem G;
-        G = new GeneratingSystem(partitions);
+        G = new GeneratingSystem(partitions, ra.s_map.size());
         SymmetricDownSet notBisim = new SymmetricDownSet();
+        callcnt = 0;
+        bkcnt = 0;
         boolean result = bisimOK(q1, sigma, q2, ra, G, notBisim);
-//        System.out.println(G);
+//        System.out.println("Calls: " + callcnt);
+//        System.out.println("Backtracks: " + bkcnt);
+//        System.out.println("BFS: " + GeneratingSystem.counter);
+//        System.out.println("Saved Permutation Calls: " + PartialPermutation.counter);
         return result;
     }
 
@@ -26,6 +35,7 @@ public class FwdGen{
     }
 
     private static boolean bisimOK(String q1, PartialPermutation sigma, String q2, RA ra, GeneratingSystem G, SymmetricDownSet notBisim) {
+        callcnt ++;
         if(notBisim.isMember(q1, sigma, q2)) {
             return false;
         }
@@ -36,13 +46,15 @@ public class FwdGen{
             notBisim.update(q1, sigma, q2);
             return false;
         }
-        Map<String, Partition> state = G.getState();
+        Partition[] state = G.getState();
         G.update(q1, sigma, q2);
         if(simulate(q1, sigma, q2, ra, G, notBisim))
             if(simulate(q2, sigma.inverse(), q1, ra, G, notBisim)){
                 return true;
             }
+        bkcnt ++;
         G.setState(state);
+//        System.out.println("Bad: " + q1 + " " + q2 + " " + sigma);
         notBisim.update(q1, sigma, q2);
         return false;
     }

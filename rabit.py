@@ -4,7 +4,7 @@ import time
 from Algorithms.forward_algorithm_3 import ra_bisim as fwd
 from Algorithms.forward_exception import ra_bisim as fwd_ex
 from Algorithms.forward_generator2 import ra_bisim as fwd_gen
-from Benchmarks_2.pibisim import pi_bisim as fwd_pi
+from pibisim import pi_bisim as fwd_pi
 from RAGen.Combiner import combiner
 from DataStructures.RA_SF_A import RegisterAutomata
 import sys
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         args.remove("-p")
         alg = fwd_pi
     else:
-        msg = """Usage: python runit.py <TYPE> f1 f2
+        msg = """Usage: python rabit.py <TYPE> f1 f2
 Where:  f1 = file containing first FRA / Pi-Calculus Process
         f2 = file containing second FRA / Pi-Calclus Process
         <TYPE> = algorithm type, where:

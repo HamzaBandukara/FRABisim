@@ -1,5 +1,6 @@
 package DataStructures;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -11,6 +12,7 @@ public class HardMap<A,B>{
 
     public HardMap(Map<A, B> map){
         this.map = map;
+//        this.map = Collections.unmodifiableMap(map);
         hash = 0;
         for(Map.Entry<A, B> entry: map.entrySet()){
             int multiplier = 1000003;
@@ -24,6 +26,7 @@ public class HardMap<A,B>{
             x = x + 97531;
             hash = hash + x;
         }
+//        this.map = null;
     }
     // HashMap memo;
     // Number of hashes = 218
@@ -34,7 +37,7 @@ public class HardMap<A,B>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HardMap<?, ?> hardMap = (HardMap<?, ?>) o;
-        return Objects.equals(map, hardMap.map);
+        return Objects.equals(hash, hardMap.hash);
     }
 
     @Override
